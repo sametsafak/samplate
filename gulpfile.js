@@ -22,17 +22,25 @@ var sourcemaps = require("gulp-sourcemaps");
 var zip = require('gulp-zip');
 var clean = require('gulp-clean');
 var gulpSequence = require('gulp-sequence');
+var fileinclude = require('gulp-file-include');
 
 
-// File paths
+
+// Asset paths
 var SCRIPTS_SRC = './src/assets/js/**/*.js';
 var STYLES_SRC = './src/assets/sass/app.scss';
 var IMAGES_SRC = './src/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
 
+//Html paths
+var HTMLS_ALL_SRC = './src/**/*.html'; // Gives all htmls for gulp watch
+var HTMLS_SRC = './src/*.html'; // Gives main htmls (without partials)
+
+// Dist paths
 var DIST_PATH = './dist/';
 var SCRIPTS_DIST = DIST_PATH + 'assets/js';
 var STYLES_DIST = DIST_PATH + 'assets/css';
 var IMAGES_DIST = DIST_PATH + 'assets/img';
+var HTMLS_DIST = DIST_PATH;
 
 
 // Styles For SCSS
@@ -91,6 +99,20 @@ gulp.task("images:optimize", () => {
     .pipe(gulp.dest(IMAGES_DIST));
 });
 
+// File include for html files
+gulp.task('fileinclude:html', function() {
+  return gulp
+    // .src("./src/html/[^_]*.html")
+    .src(HTMLS_SRC)
+    .pipe(fileinclude({
+        prefix: '@@',
+        suffix: '',
+        basepath: '@file',
+        indent: true
+    }))
+    .pipe(gulp.dest(HTMLS_DIST));
+});
+
 // Copy
 gulp.task('copy:images', () => {
   gulp
@@ -113,7 +135,7 @@ gulp.task('clean', () => {
 
 // Default tasks
 gulp.task('default', function (cb) {
-  gulpSequence('clean', ['styles:scss', 'scripts', 'copy:images'], cb) // after clean task finished, calls other tasks
+  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts', 'copy:images'], cb) // after clean task finished, calls other tasks
 });
 
 // Prod export tasks
@@ -126,5 +148,6 @@ gulp.task('watch', ['default'], function(){
   gulp.watch(SCRIPTS_SRC, ['scripts']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
   gulp.watch(IMAGES_SRC, ['copy:images']);
+  gulp.watch(HTMLS_ALL_SRC, ['fileinclude:html']);
 });
 
