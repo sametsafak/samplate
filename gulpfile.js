@@ -23,7 +23,8 @@ var zip = require('gulp-zip');
 var clean = require('gulp-clean');
 var gulpSequence = require('gulp-sequence');
 var fileinclude = require('gulp-file-include');
-
+var connect = require('gulp-connect');
+var gulpif = require('gulp-if');
 
 
 // Asset paths
@@ -43,6 +44,14 @@ var IMAGES_DIST = DIST_PATH + 'assets/img';
 var HTMLS_DIST = DIST_PATH;
 
 
+var settings = {
+  serve: true,
+  uglifyScripts: false,
+  minifyCss: false,
+  optimizeImages: false,
+  dontMinifyWhileWatchMode: true
+}
+
 // Styles For SCSS
 gulp.task('styles:scss', () => {
   return gulp.src(STYLES_SRC)
@@ -53,11 +62,9 @@ gulp.task('styles:scss', () => {
     }))
     .pipe(sourcemaps.init())
     .pipe(autoprefixer())
-    .pipe(sass({
-      outputStyle: 'compressed'
-    }))
+    .pipe(sass())
     .pipe(sass().on('error', sass.logError))
-    .pipe(cleanCSS())
+    .pipe(gulpif(settings.minifyCss, cleanCSS()))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(STYLES_DIST))
   // .pipe(livereload());
@@ -67,14 +74,13 @@ gulp.task('styles:scss', () => {
 gulp.task("scripts", (a) => {
   return gulp.src(SCRIPTS_SRC)
     .pipe(plumber(function (err) {
-      console.log('Scripts Task Error');
-      console.log(err);
+      console.log('Scripts Task Error:', err);
       this.emit('end');
     }))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    // .pipe(uglify())
-    .pipe(concat("all.js"))
+    .pipe(gulpif(settings.uglifyScripts, uglify()))
+    .pipe(concat("all.min.js"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(livereload());
@@ -82,6 +88,7 @@ gulp.task("scripts", (a) => {
 
 // Image optimization
 gulp.task("images:optimize", () => {
+  console.log('Image optimization started! It takes time.');
   return gulp.src(IMAGES_SRC)
     .pipe(imagemin([
       imagemin.gifsicle({ interlaced: true }),
@@ -134,20 +141,50 @@ gulp.task('clean', () => {
 });
 
 // Default tasks
-gulp.task('default', function (cb) {
-  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts', 'copy:images'], cb) // after clean task finished, calls other tasks
+gulp.task('default', (cb) => {
+  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts'], 'copy:images', ['serve'], cb) // after clean task finished, calls other tasks
 });
 
-// Prod export tasks
-gulp.task('prod', ['images:optimize', 'styles:scss', 'scripts'], () => {
-  console.log('Starting default task');
+// Prod export
+gulp.task('prod', (cb) => {
+  var oldVal = settings.uglifyScripts;
+  settings.uglifyScripts = true;
+
+  gulpSequence(
+    'clean',
+    ['fileinclude:html', 'styles:scss', 'scripts', 'images:optimize'],
+    function () {
+      console.log('Run something else');
+      settings.uglifyScripts = oldVal;
+      cb();
+    }
+  );
 });
 
-// Watch tasks
-gulp.task('watch', ['default'], function(){
+// Serve
+gulp.task('serve', () => {
+  if (settings.serve) {
+    connect.server({
+      root: 'dist',
+      livereload: true
+    });
+  }
+});
+
+// Watch
+gulp.task('watch', () => {
+
+  if (settings.dontMinifyWhileWatchMode) {
+    settings.uglifyScripts = false;
+  }
+
+  // This line written because I need to check the condition above before tasks started.
+  gulpSequence('default', () => { console.log('Watch mode started.') });
+
   gulp.watch(SCRIPTS_SRC, ['scripts']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
   gulp.watch(IMAGES_SRC, ['copy:images']);
   gulp.watch(HTMLS_ALL_SRC, ['fileinclude:html']);
+
 });
 

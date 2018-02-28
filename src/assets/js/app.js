@@ -5,4 +5,6 @@ var materials = [
   'Beryllium'
 ];
 
-materials.map(({length}) => length); // [8, 6, 7, 9]
+materials.map(({ length }) => length); // [8, 6, 7, 9];
+
+console.log(123);
