@@ -26,6 +26,11 @@ var concat = require('gulp-concat'),
   gulpif = require('gulp-if'),
   eslint = require('gulp-eslint');
 
+var babelify = require('babelify'),
+  browserify = require('browserify'),
+  source = require('vinyl-source-stream'),
+  buffer = require('vinyl-buffer');
+
 
 // Asset paths
 var SCRIPTS_SRC = './src/assets/js/**/*.js',
@@ -154,6 +159,15 @@ gulp.task('eslint', () => {
     // To have the process exit with an error code (1) on
     // lint error, return the stream and pipe to failAfterError last.
     .pipe(eslint.failAfterError());
+});
+
+gulp.task('testt', () => {
+  browserify(['./src/assets/js/app.js', './src/assets/js/asd.js'])
+    .transform(babelify)
+    .bundle()
+    .pipe(source('ddd.js'))
+    .pipe(gulp.dest(SCRIPTS_DIST))
+    .pipe(buffer()); // You need this if you want to continue using the stream with other plugins
 });
 
 // Image optimization
