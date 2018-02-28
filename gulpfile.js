@@ -1,51 +1,53 @@
-// @ts-check
-var gulp = require("gulp");
+var gulp = require('gulp');
 
 // Style packages
-var sass = require('gulp-sass');
-var autoprefixer = require('gulp-autoprefixer');
-let cleanCSS = require('gulp-clean-css');
+var sass = require('gulp-sass'),
+  autoprefixer = require('gulp-autoprefixer'),
+  cleanCSS = require('gulp-clean-css');
 
 // Script packages
-var babel = require("gulp-babel");
-var uglify = require('gulp-uglify');
+var babel = require('gulp-babel'),
+  uglify = require('gulp-uglify');
 
 // Image compression packages
-var imagemin = require("gulp-imagemin");
-var imageminPngquant = require("imagemin-pngquant");
-var imageminJpegRecompress = require('imagemin-jpeg-recompress');
+var imagemin = require('gulp-imagemin'),
+  imageminPngquant = require('imagemin-pngquant'),
+  imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
 // Common packages
-var concat = require("gulp-concat");
-var plumber = require('gulp-plumber');
-var livereload = require('gulp-livereload');
-var sourcemaps = require("gulp-sourcemaps");
-var zip = require('gulp-zip');
-var clean = require('gulp-clean');
-var gulpSequence = require('gulp-sequence');
-var fileinclude = require('gulp-file-include');
-var connect = require('gulp-connect');
-var gulpif = require('gulp-if');
+var concat = require('gulp-concat'),
+  plumber = require('gulp-plumber'),
+  sourcemaps = require('gulp-sourcemaps'),
+  zip = require('gulp-zip'),
+  clean = require('gulp-clean'),
+  gulpSequence = require('gulp-sequence'),
+  fileinclude = require('gulp-file-include'),
+  connect = require('gulp-connect'),
+  gulpif = require('gulp-if'),
+  eslint = require('gulp-eslint');
 
 
 // Asset paths
-var SCRIPTS_SRC = './src/assets/js/**/*.js';
-var STYLES_SRC = './src/assets/sass/app.scss';
-var IMAGES_SRC = './src/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
+var SCRIPTS_SRC = './src/assets/js/**/*.js',
+  STYLES_SRC = './src/assets/sass/app.scss',
+  IMAGES_SRC = './src/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
 
-//Html paths
-var HTMLS_ALL_SRC = './src/**/*.html'; // Gives all htmls for gulp watch
-var HTMLS_SRC = './src/*.html'; // Gives main htmls (without partials)
+// Html paths
+var HTMLS_ALL_SRC = './src/**/*.html', // Gives all htmls for gulp watch
+  HTMLS_SRC = './src/*.html'; // Gives main htmls (without partials)
 
 // Dist paths
-var DIST_PATH = './dist/';
-var SCRIPTS_DIST = DIST_PATH + 'assets/js';
-var STYLES_DIST = DIST_PATH + 'assets/css';
-var IMAGES_DIST = DIST_PATH + 'assets/img';
-var HTMLS_DIST = DIST_PATH;
+var DIST_PATH = './dist/',
+  SCRIPTS_DIST = DIST_PATH + 'assets/js',
+  STYLES_DIST = DIST_PATH + 'assets/css',
+  IMAGES_DIST = DIST_PATH + 'assets/img',
+  HTMLS_DIST = DIST_PATH;
 
 
 var defaultSettings = {
+  general: {
+    fileInclude: true
+  },
   watch: {
     serve: false,
     uglifyScripts: false,
@@ -70,9 +72,11 @@ var defaultSettings = {
       image: true
     }
   }
-}
-
+};
 var userSettings = {
+  general: {
+    fileIncludeActive: true
+  },
   watch: {
     serve: true,
     uglifyScripts: false,
@@ -97,8 +101,7 @@ var userSettings = {
       image: false
     }
   }
-}
-
+};
 var settings = Object.assign(defaultSettings, userSettings);
 
 var currentMode = 'watch'; // 'watch' or 'export'
@@ -122,7 +125,7 @@ gulp.task('styles:scss', () => {
 });
 
 // Scripts
-gulp.task("scripts", (a) => {
+gulp.task('scripts', () => {
   return gulp.src(SCRIPTS_SRC)
     .pipe(plumber(function (err) {
       console.log('Scripts Task Error:', err);
@@ -131,24 +134,49 @@ gulp.task("scripts", (a) => {
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
-    .pipe(concat("all.min.js"))
-    .pipe(sourcemaps.write("."))
+    .pipe(concat('all.min.js'))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
 });
+gulp.task('eslint', () => {
+  // ESLint ignores files with "node_modules" paths.
+  // So, it's best to have gulp ignore the directory as well.
+  // Also, Be sure to return the stream from the task;
+  // Otherwise, the task may end before the stream has finished.
+  return gulp.src([SCRIPTS_SRC, '!node_modules/**'])
+    // eslint() attaches the lint output to the "eslint" property
+    // of the file object so it can be used by other modules.
+    .pipe(eslint())
+    // eslint.format() outputs the lint results to the console.
+    // Alternatively use eslint.formatEach() (see Docs).
+    .pipe(eslint.format())
+    // To have the process exit with an error code (1) on
+    // lint error, return the stream and pipe to failAfterError last.
+    .pipe(eslint.failAfterError());
+});
 
 // Image optimization
-gulp.task("optimizeImages", () => {
+gulp.task('optimizeImages', () => {
   console.log('Image optimization started! It will take a few minutes.');
   return gulp.src(IMAGES_SRC)
     .pipe(imagemin([
-      imagemin.gifsicle({ interlaced: true }),
-      imagemin.jpegtran({ progressive: true }),
-      imagemin.optipng({ optimizationLevel: 5 }),
+      imagemin.gifsicle({
+        interlaced: true
+      }),
+      imagemin.jpegtran({
+        progressive: true
+      }),
+      imagemin.optipng({
+        optimizationLevel: 5
+      }),
       imagemin.svgo({
-        plugins: [
-          { removeViewBox: true },
-          { cleanupIDs: false }
+        plugins: [{
+            removeViewBox: true
+          },
+          {
+            cleanupIDs: false
+          }
         ]
       }),
       imageminPngquant(),
@@ -159,19 +187,25 @@ gulp.task("optimizeImages", () => {
 });
 
 // File include for html files
-gulp.task('fileinclude:html', function() {
-  return gulp
+gulp.task('fileinclude:html', function () {
+
+  let stream = gulp
     // .src("./src/html/[^_]*.html")
-    .src(HTMLS_SRC)
-    .pipe(fileinclude({
+    .src(HTMLS_SRC);
+
+  if ( settings.general.fileIncludeActive ) {
+    stream.pipe(fileinclude({
       prefix: '@@',
       suffix: '',
       basepath: '@file',
       indent: true
     }))
-    .pipe(gulp.dest(HTMLS_DIST))
-    .pipe(connect.reload())
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()));
+      .pipe(gulp.dest(HTMLS_DIST))
+      .pipe(connect.reload())
+      .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()));
+  }
+
+  return stream;
 });
 
 // Copy
@@ -199,13 +233,15 @@ gulp.task('exportzip', () => {
 
 // Delete dist folder
 gulp.task('clean', () => {
-  return gulp.src(DIST_PATH, {read: false})
-      .pipe(clean());
+  return gulp.src(DIST_PATH, {
+      read: false
+    })
+    .pipe(clean());
 });
 
 // Default tasks
 gulp.task('default', (cb) => {
-  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts', 'imagesHandler'], cb) // after clean task finished, calls other tasks
+  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'eslint', 'scripts', 'imagesHandler'], cb); // after clean task finished, calls other tasks
 });
 
 // Export project for production to dist folder
@@ -237,7 +273,9 @@ gulp.task('watch', () => {
 
   currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
-  gulpSequence('default', 'serve', () => { console.log('Watch mode started.') });
+  gulpSequence('default', 'serve', () => {
+    console.log('Watch mode started.');
+  });
 
   gulp.watch(SCRIPTS_SRC, ['scripts']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
@@ -245,4 +283,3 @@ gulp.task('watch', () => {
   gulp.watch(HTMLS_ALL_SRC, ['fileinclude:html']);
 
 });
-

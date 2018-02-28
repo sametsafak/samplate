@@ -1,7 +1,8 @@
 {
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": 5
+        "ecmaVersion": 6,
+        "sourceType": "module"
     },
     "env": {
         "browser": true,
@@ -11,12 +12,8 @@
         "amd": true
     },
     "globals": {
-        "APP": false,
         "jQuery": true,
         "$": true,
-        "CONFIG": false,
-        "UNIGATE": false,
-        "_":  true,
         "swal": true
     },
     "rules": {
@@ -36,7 +33,7 @@
         "eqeqeq": [2],
         "func-call-spacing": [2, "never"],
         "id-blacklist": [0, "err", "e", "cb", "callback"],
-        "indent": [2, 4, { "SwitchCase": 1 }],
+        "indent": [1, 2],
         "init-declarations": [0, "never", { "ignoreForLoopInit": true }],
         "key-spacing": [2, { "beforeColon": false, "afterColon": true }],
         "keyword-spacing": [2, { "overrides": { "else": { "before": true }, "while": { "before": true }, "catch": { "before": true }} }],
@@ -45,11 +42,11 @@
         "one-var": [2, {
             "const": "never"
         }],
-        "one-var-declaration-per-line": [2, "initializations"],
+        "one-var-declaration-per-line": [1, "initializations"],
         "operator-assignment": [2, "always"],
         "operator-linebreak": [1, "none"],
         "quote-props": [0, "as-needed"],
-        "quotes": [2, "single", { "avoidEscape": true }],
+        "quotes": [1, "single", { "avoidEscape": true }],
         "radix": [2],
         "semi": [2, "always"],
         "semi-spacing": [2, { "before": false, "after": true }],
@@ -59,7 +56,7 @@
         "space-in-parens": [0, "never", { "exceptions": ["{}"] }],
         "space-unary-ops": [2, { "words": false, "nonwords": false }],
         "spaced-comment": [2, "always", { "block": { "exceptions": ["-"] } }],
-        "strict": [2, "function"],
+        "strict": [0, "function"],
         "new-cap": [2, {
             "newIsCap": true,
             "newIsCapExceptions": [],
