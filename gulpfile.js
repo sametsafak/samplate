@@ -1,3 +1,4 @@
+// @ts-check
 var gulp = require("gulp");
 
 // Style packages
@@ -44,13 +45,63 @@ var IMAGES_DIST = DIST_PATH + 'assets/img';
 var HTMLS_DIST = DIST_PATH;
 
 
-var settings = {
-  serve: true,
-  uglifyScripts: false,
-  minifyCss: false,
-  optimizeImages: false,
-  dontMinifyWhileWatchMode: true
+var defaultSettings = {
+  watch: {
+    serve: false,
+    uglifyScripts: false,
+    minifyCss: false,
+    optimizeImages: false,
+    refreshPageAfter: {
+      fileInclude: true,
+      style: true,
+      script: true,
+      image: true
+    }
+  },
+  export: {
+    serve: false,
+    uglifyScripts: true,
+    minifyCss: true,
+    optimizeImages: true,
+    refreshPageAfter: {
+      fileInclude: false,
+      style: false,
+      script: false,
+      image: true
+    }
+  }
 }
+
+var userSettings = {
+  watch: {
+    serve: true,
+    uglifyScripts: false,
+    minifyCss: false,
+    optimizeImages: false,
+    refreshPageAfter: {
+      fileInclude: true,
+      style: true,
+      script: true,
+      image: true
+    }
+  },
+  export: {
+    serve: true,
+    uglifyScripts: true,
+    minifyCss: true,
+    optimizeImages: true,
+    refreshPageAfter: {
+      fileInclude: false,
+      style: false,
+      script: false,
+      image: false
+    }
+  }
+}
+
+var settings = Object.assign(defaultSettings, userSettings);
+
+var currentMode = 'watch'; // 'watch' or 'export'
 
 // Styles For SCSS
 gulp.task('styles:scss', () => {
@@ -64,10 +115,10 @@ gulp.task('styles:scss', () => {
     .pipe(autoprefixer())
     .pipe(sass())
     .pipe(sass().on('error', sass.logError))
-    .pipe(gulpif(settings.minifyCss, cleanCSS()))
+    .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(STYLES_DIST))
-  // .pipe(livereload());
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()));
 });
 
 // Scripts
@@ -79,16 +130,16 @@ gulp.task("scripts", (a) => {
     }))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(gulpif(settings.uglifyScripts, uglify()))
+    .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
     .pipe(concat("all.min.js"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(SCRIPTS_DIST))
-    .pipe(livereload());
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
 });
 
 // Image optimization
-gulp.task("images:optimize", () => {
-  console.log('Image optimization started! It takes time.');
+gulp.task("optimizeImages", () => {
+  console.log('Image optimization started! It will take a few minutes.');
   return gulp.src(IMAGES_SRC)
     .pipe(imagemin([
       imagemin.gifsicle({ interlaced: true }),
@@ -103,7 +154,8 @@ gulp.task("images:optimize", () => {
       imageminPngquant(),
       imageminJpegRecompress()
     ]))
-    .pipe(gulp.dest(IMAGES_DIST));
+    .pipe(gulp.dest(IMAGES_DIST))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
 });
 
 // File include for html files
@@ -112,12 +164,14 @@ gulp.task('fileinclude:html', function() {
     // .src("./src/html/[^_]*.html")
     .src(HTMLS_SRC)
     .pipe(fileinclude({
-        prefix: '@@',
-        suffix: '',
-        basepath: '@file',
-        indent: true
+      prefix: '@@',
+      suffix: '',
+      basepath: '@file',
+      indent: true
     }))
-    .pipe(gulp.dest(HTMLS_DIST));
+    .pipe(gulp.dest(HTMLS_DIST))
+    .pipe(connect.reload())
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()));
 });
 
 // Copy
@@ -125,10 +179,19 @@ gulp.task('copy:images', () => {
   gulp
     .src(IMAGES_SRC)
     .pipe(gulp.dest(IMAGES_DIST))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
 });
 
-// Export site as zip
-gulp.task('export', () => {
+gulp.task('imagesHandler', (cb) => {
+  if (settings[currentMode].optimizeImages) {
+    gulpSequence('optimizeImages', cb);
+  } else {
+    gulpSequence('copy:images', cb);
+  }
+});
+
+// Export project as zip
+gulp.task('exportzip', () => {
   return gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
     .pipe(zip('website.zip'))
     .pipe(gulp.dest('./'));
@@ -142,20 +205,18 @@ gulp.task('clean', () => {
 
 // Default tasks
 gulp.task('default', (cb) => {
-  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts'], 'copy:images', ['serve'], cb) // after clean task finished, calls other tasks
+  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'scripts', 'imagesHandler'], cb) // after clean task finished, calls other tasks
 });
 
-// Prod export
-gulp.task('prod', (cb) => {
-  var oldVal = settings.uglifyScripts;
-  settings.uglifyScripts = true;
+// Export project for production to dist folder
+gulp.task('export', (cb) => {
+
+  currentMode = 'export';
 
   gulpSequence(
-    'clean',
-    ['fileinclude:html', 'styles:scss', 'scripts', 'images:optimize'],
+    'default',
     function () {
-      console.log('Run something else');
-      settings.uglifyScripts = oldVal;
+      console.log('Export has finished!');
       cb();
     }
   );
@@ -163,7 +224,7 @@ gulp.task('prod', (cb) => {
 
 // Serve
 gulp.task('serve', () => {
-  if (settings.serve) {
+  if (settings[currentMode].serve) {
     connect.server({
       root: 'dist',
       livereload: true
@@ -174,12 +235,9 @@ gulp.task('serve', () => {
 // Watch
 gulp.task('watch', () => {
 
-  if (settings.dontMinifyWhileWatchMode) {
-    settings.uglifyScripts = false;
-  }
-
+  currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
-  gulpSequence('default', () => { console.log('Watch mode started.') });
+  gulpSequence('default', 'serve', () => { console.log('Watch mode started.') });
 
   gulp.watch(SCRIPTS_SRC, ['scripts']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
