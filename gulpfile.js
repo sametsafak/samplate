@@ -34,7 +34,7 @@ var babelify = require('babelify'),
 
 // Asset paths
 var SCRIPTS_SRC = './src/assets/js/**/*.js',
-  STYLES_SRC = './src/assets/sass/app.scss',
+  STYLES_SRC = './src/assets/sass/**/*.scss',
   IMAGES_SRC = './src/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
 
 // Html paths
@@ -120,10 +120,10 @@ gulp.task('styles:scss', () => {
       this.emit('end');
     }))
     .pipe(sourcemaps.init())
-    .pipe(autoprefixer())
     .pipe(sass())
     .pipe(sass().on('error', sass.logError))
     .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
+    .pipe(autoprefixer())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(STYLES_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()));
