@@ -1,3 +1,16 @@
-body {
-  background-color: white;
-}
+/*
+ *
+ * Application Bootstrap
+ *
+ */
+// @import "../lib/bootstrap-3.3.7/stylesheets/_bootstrap";
+// @import "../lib/bootstrap-4.0.0/scss/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+@import "_variables";
+@import "_defaults";
+@import "_mixins";
+@import "_layout";
+@import "_typo";
+@import "_ui-icons";
+@import "_common";

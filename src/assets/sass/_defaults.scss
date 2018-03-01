@@ -1,0 +1,17 @@
+* {
+  outline: none !important;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: blue;
+}
+
+a,
+a:hover,
+a:active,
+a:focus,
+a:visited {
+  text-decoration: none;
+  cursor: pointer;
+}

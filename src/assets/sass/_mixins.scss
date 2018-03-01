@@ -1,0 +1,68 @@
+/*
+ *
+ * Mixins
+ *
+ */
+@mixin make-margins-and-paddings($screen-size, $size, $loop-count) { // xs, 10px, 12: lm-xs-t1
+
+    $types: margin padding;
+
+    @each $type in $types {
+
+        $t: str-slice($type, 1, 1); // $t is minified of '$type', m for minified 'margin' word. Same as paddings...
+
+        $directions: top right bottom left;
+
+        @each $direction in $directions {
+            $d: str-slice($direction, 1, 1); // $d is minified of '$directions',t for minified 'top' word. Same as other directions...
+
+            @for $i from 0 through $loop-count {
+                .l#{$t}-#{$screen-size}-#{$d}#{$i}{  // margin-xs-top-10 = margin-top, xs and above sizes, 10px
+                    #{$type}-#{$direction}: ($size * $i) !important;
+                }
+            }
+        }
+    }
+}
+
+
+@mixin make-col-widths($grid-columns, $class) {
+
+    @for $i from 0 through $grid-columns {
+
+        .width-#{$class}#{$i} {
+            width: ($grid-gutter-width * $i) !important;
+        }
+    }
+}
+
+@mixin css3-vendor($prop, $args...){
+    -moz-#{$prop}: $args;
+    -webkit-#{$prop}: $args;
+    -ms-#{$prop}: $args;
+    -o-#{$prop}: $args;
+    #{$prop}: $args;
+}
+
+@mixin border-radius($radius) {
+
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+@mixin transform($transform) {
+    -ms-transform: $transform;
+    -webkit-transform: $transform;
+    -o-transform: $transform;
+    transform: $transform;
+}
+
+@mixin transition($transition) {
+    -webkit-transition: $transition;
+    -moz-transition: $transition;
+    -ms-transition: $transition;
+    -o-transition: $transition;
+    transition: $transition;
+}
