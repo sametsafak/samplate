@@ -26,20 +26,23 @@ var concat = require('gulp-concat'),
   gulpif = require('gulp-if'),
   eslint = require('gulp-eslint');
 
-var babelify = require('babelify'),
-  browserify = require('browserify'),
-  source = require('vinyl-source-stream'),
-  buffer = require('vinyl-buffer');
+
+// babel import tests
+// var babelify = require('babelify'),
+//   browserify = require('browserify'),
+//   source = require('vinyl-source-stream'),
+//   buffer = require('vinyl-buffer');
 
 
 // Asset paths
-var SCRIPTS_SRC = './src/assets/js/**/*.js',
-  STYLES_SRC = './src/assets/sass/**/*.scss',
-  IMAGES_SRC = './src/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
+var LIB_SCRIPTS_SRC = ['./src/assets/js/libs/**/*.js'],
+  APP_SCRIPTS_SRC = ['./src/assets/js/app/**/*.js'],
+  STYLES_SRC = ['./src/assets/sass/**/*.scss'],
+  IMAGES_SRC = ['./src/assets/img/**/*.{png,jpeg,jpg,svg,gif}'];
 
 // Html paths
-var HTMLS_ALL_SRC = './src/**/*.html', // Gives all htmls for gulp watch
-  HTMLS_SRC = './src/*.html'; // Gives main htmls (without partials)
+var HTMLS_ALL_SRC = ['./src/**/*.html'], // Gives all htmls for gulp watch
+  HTMLS_SRC = ['./src/*.html']; // Gives main htmls (without partials)
 
 // Dist paths
 var DIST_PATH = './dist/',
@@ -51,7 +54,17 @@ var DIST_PATH = './dist/',
 
 var defaultSettings = {
   general: {
-    fileInclude: true
+    fileInclude: true,
+    appScriptLoadFirst: [
+      // examples
+      // './src/assets/js/app/helper.js',
+      // './src/assets/js/app/methods2.js'
+    ],
+    libScriptLoadFirst: [
+      // examples
+      // './src/assets/js/libs/jquery.js'
+      // './src/assets/js/libs/bootstrap.js'
+    ]
   },
   watch: {
     serve: false,
@@ -80,7 +93,15 @@ var defaultSettings = {
 };
 var userSettings = {
   general: {
-    fileIncludeActive: true
+    fileIncludeActive: true,
+    appScriptLoadFirst: [
+      './src/assets/js/app/helper.js',
+      './src/assets/js/app/methods2.js'
+    ],
+    libScriptLoadFirst: [
+      './src/assets/js/libs/zzz.js',
+      './src/assets/js/libs/jquery.js'
+    ]
   },
   watch: {
     serve: true,
@@ -107,8 +128,8 @@ var userSettings = {
     }
   }
 };
-var settings = Object.assign(defaultSettings, userSettings);
 
+var settings = Object.assign(defaultSettings, userSettings);
 var currentMode = 'watch'; // 'watch' or 'export'
 
 // Styles For SCSS
@@ -129,9 +150,29 @@ gulp.task('styles:scss', () => {
     .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()));
 });
 
-// Scripts
-gulp.task('scripts', () => {
-  return gulp.src(SCRIPTS_SRC)
+// bundle library script files in js/libs folder
+gulp.task('script:libs', () => {
+
+  const sources = [...settings.general.libScriptLoadFirst, ...LIB_SCRIPTS_SRC];
+  console.log(sources);
+
+  return gulp.src(sources)
+    .pipe(plumber(function (err) {
+      console.log('Scripts Task Error:', err);
+      this.emit('end');
+    }))
+    .pipe(sourcemaps.init())
+    .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
+    .pipe(concat('libs.min.js'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(SCRIPTS_DIST))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
+});
+
+gulp.task('script:app', () => {
+  const sources = [...settings.general.appScriptLoadFirst, ...APP_SCRIPTS_SRC];
+
+  return gulp.src(sources)
     .pipe(plumber(function (err) {
       console.log('Scripts Task Error:', err);
       this.emit('end');
@@ -139,17 +180,19 @@ gulp.task('scripts', () => {
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
-    .pipe(concat('all.min.js'))
+    .pipe(concat('app.min.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
 });
+
+
 gulp.task('eslint', () => {
   // ESLint ignores files with "node_modules" paths.
   // So, it's best to have gulp ignore the directory as well.
   // Also, Be sure to return the stream from the task;
   // Otherwise, the task may end before the stream has finished.
-  return gulp.src([SCRIPTS_SRC, '!node_modules/**'])
+  return gulp.src(APP_SCRIPTS_SRC)
     // eslint() attaches the lint output to the "eslint" property
     // of the file object so it can be used by other modules.
     .pipe(eslint())
@@ -161,14 +204,14 @@ gulp.task('eslint', () => {
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('testt', () => {
-  browserify(['./src/assets/js/app.js', './src/assets/js/asd.js'])
-    .transform(babelify)
-    .bundle()
-    .pipe(source('ddd.js'))
-    .pipe(gulp.dest(SCRIPTS_DIST))
-    .pipe(buffer()); // You need this if you want to continue using the stream with other plugins
-});
+// gulp.task('testt', () => {
+//   browserify(['./src/assets/js/app/app.js'])
+//     .transform(babelify)
+//     .bundle()
+//     .pipe(source('ddd.js'))
+//     .pipe(gulp.dest(SCRIPTS_DIST))
+//     .pipe(buffer()); // You need this if you want to continue using the stream with other plugins
+// });
 
 // Image optimization
 gulp.task('optimizeImages', () => {
@@ -186,12 +229,11 @@ gulp.task('optimizeImages', () => {
       }),
       imagemin.svgo({
         plugins: [{
-            removeViewBox: true
-          },
-          {
-            cleanupIDs: false
-          }
-        ]
+          removeViewBox: true
+        },
+        {
+          cleanupIDs: false
+        }]
       }),
       imageminPngquant(),
       imageminJpegRecompress()
@@ -255,7 +297,7 @@ gulp.task('clean', () => {
 
 // Default tasks
 gulp.task('default', (cb) => {
-  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'eslint', 'scripts', 'imagesHandler'], cb); // after clean task finished, calls other tasks
+  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'eslint', 'script:libs', 'script:app', 'imagesHandler'], cb); // after clean task finished, calls other tasks
 });
 
 // Export project for production to dist folder
@@ -291,7 +333,8 @@ gulp.task('watch', () => {
     console.log('Watch mode started.');
   });
 
-  gulp.watch(SCRIPTS_SRC, ['scripts']);
+  gulp.watch(LIB_SCRIPTS_SRC, ['script:libs']);
+  gulp.watch(APP_SCRIPTS_SRC, ['script:app']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
   gulp.watch(IMAGES_SRC, ['copy:images']);
   gulp.watch(HTMLS_ALL_SRC, ['fileinclude:html']);

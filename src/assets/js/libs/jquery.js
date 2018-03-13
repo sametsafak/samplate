@@ -1,0 +1,2 @@
+// jquery
+console.log('jquery');
