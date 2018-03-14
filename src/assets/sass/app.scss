@@ -2,9 +2,9 @@
 // @import "../lib/bootstrap-4.0.0/scss/bootstrap";
 @import "_bootstrap-overrides";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
-$grid-gutter-width: 20px;
 
 @import "_variables";
+@import "_forms";
 @import "_defaults";
 @import "_mixins";
 @import "_layout";

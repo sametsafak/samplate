@@ -25,7 +25,7 @@ var concat = require('gulp-concat'),
   fileinclude = require('gulp-file-include'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
-  notify = require('gulp-notify'),
+  // notify = require('gulp-notify'),
   notifier = require('node-notifier');
 
 
@@ -120,7 +120,7 @@ var userSettings = {
     }
   },
   export: {
-    serve: true,
+    serve: false,
     uglifyScripts: true,
     minifyCss: true,
     optimizeImages: true,
@@ -135,55 +135,82 @@ var userSettings = {
 
 var settings = Object.assign(defaultSettings, userSettings);
 var currentMode = 'watch'; // 'watch' or 'export'
+var errorAtFirstStart = false;
 
-let onError = function (err) {
-  if (settings.general.showNotifications) {
-    notify.onError({
-      title: 'Samplate',
-      subtitle: 'Oops!',
-      message: 'Error: <%= error.message %>',
-      sound: 'Morse',
-      timeout: 4,
-      remove: 1
-    })(err);
-  } else {
-    console.log(err);
+
+let popNotification = function (type, message) {
+  let obj = {};
+
+  switch (type) {
+  case 'error':
+    obj.title = 'Error';
+    obj.timeout = 4;
+    obj.remove = 0;
+    obj.sound = 'Morse';
+    break;
+  case 'warning':
+    obj.title = 'Warning';
+    obj.timeout = 4;
+    obj.remove = 1;
+    obj.sound = 'Purr';
+    break;
+  case 'success':
+    obj.title = 'Success';
+    obj.timeout = 2;
+    obj.remove = 1;
+    obj.sound = 'Pop';
+    break;
+  default:
+    obj.title = 'Samplate';
+    obj.timeout = 4;
+    obj.remove = 1;
+    obj.sound = 'Pop';
   }
-  this.emit('end');
-};
 
-let onSuccess = function (message) {
   if (settings.general.showNotifications) {
     notifier.notify({
-      title: 'Gulp',
-      subtitle: 'Success',
+      title: 'Samplate',
+      subtitle: obj.title,
       message: message,
-      sound: 'Pop'
+      sound: obj.sound,
+      timeout: obj.timeout,
+      remove: obj.remove
     });
+  } else {
+    console.log(message);
   }
+};
+
+let onError = function (error) {
+  errorAtFirstStart = true;
+  console.log(error);
+  popNotification('error', error.message);
 };
 
 
 // Styles For SCSS
-gulp.task('styles:scss', (done) => {
+gulp.task('styles:scss', function (done) {
 
-  var stream = gulp.src(STYLES_SRC)
-    .pipe(plumber({ errorHandler: onError }))
+  let errorHappened = false;
+  let stream = gulp.src(STYLES_SRC)
+    .pipe(plumber(function (err) {
+      onError(err);
+      errorHappened = true;
+    }))
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(sass().on('error', sass.logError))
     .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
     .pipe(autoprefixer())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest(STYLES_DIST))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()));
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()))
+    .pipe(gulp.dest(STYLES_DIST));
 
   stream.on('end', function () {
-    onSuccess('Sass task completed!');
+    if (!errorHappened) {
+      popNotification('success', 'styles:sass task completed!');
+    }
     done();
-  });
-  stream.on('error', function (err) {
-    done(err);
   });
 });
 
@@ -191,44 +218,50 @@ gulp.task('styles:scss', (done) => {
 gulp.task('script:libs', (done) => {
 
   const sources = [...settings.general.libScriptLoadFirst, ...LIB_SCRIPTS_SRC];
+  let errorHappened = false;
 
   var stream = gulp.src(sources)
-    .pipe(plumber({ errorHandler: onError }))
+    .pipe(plumber(function (err) {
+      onError(err);
+      errorHappened = true;
+    }))
     .pipe(sourcemaps.init())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
     .pipe(concat('libs.min.js'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(SCRIPTS_DIST))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
+    .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    onSuccess('script:libs task completed!');
+    if (!errorHappened) {
+      popNotification('success', 'script:libs task completed!');
+    }
     done();
-  });
-  stream.on('error', function (err) {
-    done(err);
   });
 });
 
 gulp.task('script:app', (done) => {
   const sources = [...settings.general.appScriptLoadFirst, ...APP_SCRIPTS_SRC];
+  let errorHappened = false;
 
   var stream = gulp.src(sources)
-    .pipe(plumber({ errorHandler: onError }))
+    .pipe(plumber(function (err) {
+      onError(err);
+      errorHappened = true;
+    }))
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
     .pipe(concat('app.min.js'))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(SCRIPTS_DIST))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
+    .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    onSuccess('script:app task completed!');
+    if (!errorHappened) {
+      popNotification('success', 'script:app task completed!');
+    }
     done();
-  });
-  stream.on('error', function (err) {
-    done(err);
   });
 });
 
@@ -239,7 +272,9 @@ gulp.task('eslint', () => {
   // Also, Be sure to return the stream from the task;
   // Otherwise, the task may end before the stream has finished.
   return gulp.src(APP_SCRIPTS_SRC)
-    .pipe(plumber({ errorHandler: onError }))
+    .pipe(plumber(function (err) {
+      onError(err);
+    }))
     // eslint() attaches the lint output to the "eslint" property
     // of the file object so it can be used by other modules.
     .pipe(eslint())
@@ -263,8 +298,13 @@ gulp.task('eslint', () => {
 // Image optimization
 gulp.task('optimizeImages', (done) => {
   console.log('Image optimization started! It will take a few minutes.');
-  var stream = gulp.src(IMAGES_SRC)
-    .pipe(plumber({ errorHandler: onError }))
+  let errorHappened = false;
+
+  let stream = gulp.src(IMAGES_SRC)
+    .pipe(plumber(function (err) {
+      onError(err);
+      errorHappened = true;
+    }))
     .pipe(imagemin([
       imagemin.gifsicle({
         interlaced: true
@@ -276,46 +316,50 @@ gulp.task('optimizeImages', (done) => {
         optimizationLevel: 5
       }),
       imagemin.svgo({
-        plugins: [{
-          removeViewBox: true
-        },
-        {
-          cleanupIDs: false
-        }]
+        plugins: [
+          {
+            removeViewBox: true
+          },
+          {
+            cleanupIDs: false
+          }
+        ]
       }),
       imageminPngquant(),
       imageminJpegRecompress()
     ]))
-    .pipe(gulp.dest(IMAGES_DIST))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(IMAGES_DIST));
 
   stream.on('end', function () {
-    onSuccess('optimizeImages task completed!');
+    if (!errorHappened) {
+      popNotification('success', 'optimizeImages task completed!');
+    }
     done();
   });
-  stream.on('error', function (err) {
-    done(err);
-  });
+
 });
 
 // File include for html files
-gulp.task('fileinclude:html', function (done) {
+gulp.task('fileinclude:html', function () {
 
   let stream = gulp
     // .src("./src/html/[^_]*.html")
     .src(HTMLS_SRC);
 
   if (settings.general.fileIncludeActive) {
-    stream.pipe(fileinclude({
-      prefix: '@@',
-      suffix: '',
-      basepath: '@file',
-      indent: true
-    }))
-      .pipe(plumber({ errorHandler: onError }))
-      .pipe(gulp.dest(HTMLS_DIST))
-      .pipe(connect.reload())
-      .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()));
+    stream.pipe(fileinclude(
+      {
+        prefix: '@@',
+        suffix: '',
+        basepath: '@file',
+        indent: true
+      }))
+      .pipe(plumber(function (err) {
+        onError(err);
+      }))
+      .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()))
+      .pipe(gulp.dest(HTMLS_DIST));
   }
   return stream;
 });
@@ -324,9 +368,11 @@ gulp.task('fileinclude:html', function (done) {
 gulp.task('copy:images', () => {
   return gulp
     .src(IMAGES_SRC)
-    .pipe(plumber({ errorHandler: onError }))
-    .pipe(gulp.dest(IMAGES_DIST))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
+    .pipe(plumber(function (err) {
+      onError(err);
+    }))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(IMAGES_DIST));
 });
 
 gulp.task('imagesHandler', (cb) => {
@@ -339,48 +385,75 @@ gulp.task('imagesHandler', (cb) => {
 
 // Export project as zip
 gulp.task('exportzip', (done) => {
+  let errorHappened = false;
+
   let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
-    .pipe(plumber({ errorHandler: onError }))
+    .pipe(plumber(function (err) {
+      onError(err);
+      errorHappened = true;
+    }))
     .pipe(zip('website.zip'))
     .pipe(gulp.dest('./'));
 
   stream.on('end', function () {
-    onSuccess('exportzip task completed!');
+    if (!errorHappened) {
+      popNotification('success', 'exportzip task completed!');
+    }
     done();
-  });
-  stream.on('error', function (err) {
-    done(err);
   });
 });
 
 // Delete dist folder
 gulp.task('clean', () => {
-  return gulp.src(DIST_PATH, {
-    read: false
-  })
-    .pipe(plumber({ errorHandler: onError }))
+  return gulp.src(DIST_PATH,
+    {
+      read: false
+    })
+    .pipe(plumber(function (err) {
+      onError(err);
+    }))
     .pipe(clean());
 
 });
 
 // Default tasks
 gulp.task('default', (cb) => {
-  gulpSequence('clean', ['fileinclude:html', 'styles:scss', 'eslint', 'script:libs', 'script:app', 'imagesHandler'], cb); // after clean task finished, calls other tasks
+  gulpSequence('clean',
+    [
+      'fileinclude:html',
+      'styles:scss',
+      'eslint',
+      'script:libs',
+      'script:app',
+      'imagesHandler'
+    ],
+    cb); // after clean task finished, calls other tasks
 });
+
 
 // Export project for production to dist folder
 gulp.task('export', (cb) => {
 
   currentMode = 'export';
 
+  let notificationSetting = settings.general.showNotifications;
+
+  settings.general.showNotifications = false;
+
   gulpSequence(
     'default',
     function () {
-      console.log('Export has finished!');
       cb();
+      settings.general.showNotifications = notificationSetting;
+      if (!errorAtFirstStart) {
+        popNotification('success', 'Export completed successfully!');
+      } else {
+        popNotification('warning', 'Export completed with some errors!');
+      }
     }
   );
 });
+
 
 // Serve
 gulp.task('serve', () => {
@@ -401,7 +474,11 @@ gulp.task('watch', () => {
   // This line written because I need to check the condition above before tasks started.
   gulpSequence('default', 'serve', () => {
     settings.general.showNotifications = notificationSetting;
-    onSuccess('Watch mode started!');
+    if (errorAtFirstStart) {
+      popNotification('warning', 'Watch mode started with some errors!');
+    } else {
+      popNotification('success', 'Watch mode started!');
+    }
   });
 
   gulp.watch(LIB_SCRIPTS_SRC, ['script:libs']);
