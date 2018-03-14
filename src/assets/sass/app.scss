@@ -1,16 +1,14 @@
-/*
- *
- * Application Bootstrap
- *
- */
 // @import "../lib/bootstrap-3.3.7/stylesheets/_bootstrap";
 // @import "../lib/bootstrap-4.0.0/scss/bootstrap";
+@import "_bootstrap-overrides";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
+$grid-gutter-width: 20px;
 
 @import "_variables";
 @import "_defaults";
 @import "_mixins";
 @import "_layout";
+@import "_buttons";
 @import "_typo";
 @import "_ui-icons";
 @import "_common";

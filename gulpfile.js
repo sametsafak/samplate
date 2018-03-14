@@ -7,7 +7,8 @@ var sass = require('gulp-sass'),
 
 // Script packages
 var babel = require('gulp-babel'),
-  uglify = require('gulp-uglify');
+  uglify = require('gulp-uglify'),
+  eslint = require('gulp-eslint');
 
 // Image compression packages
 var imagemin = require('gulp-imagemin'),
@@ -24,7 +25,8 @@ var concat = require('gulp-concat'),
   fileinclude = require('gulp-file-include'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
-  eslint = require('gulp-eslint');
+  notify = require('gulp-notify'),
+  notifier = require('node-notifier');
 
 
 // babel import tests
@@ -55,6 +57,7 @@ var DIST_PATH = './dist/',
 var defaultSettings = {
   general: {
     fileInclude: true,
+    showNotifications: true,
     appScriptLoadFirst: [
       // examples
       // './src/assets/js/app/helper.js',
@@ -87,13 +90,14 @@ var defaultSettings = {
       fileInclude: false,
       style: false,
       script: false,
-      image: true
+      image: false
     }
   }
 };
 var userSettings = {
   general: {
     fileIncludeActive: true,
+    showNotifications: true,
     appScriptLoadFirst: [
       './src/assets/js/app/helper.js',
       './src/assets/js/app/methods2.js'
@@ -132,14 +136,39 @@ var userSettings = {
 var settings = Object.assign(defaultSettings, userSettings);
 var currentMode = 'watch'; // 'watch' or 'export'
 
+let onError = function (err) {
+  if (settings.general.showNotifications) {
+    notify.onError({
+      title: 'Samplate',
+      subtitle: 'Oops!',
+      message: 'Error: <%= error.message %>',
+      sound: 'Morse',
+      timeout: 4,
+      remove: 1
+    })(err);
+  } else {
+    console.log(err);
+  }
+  this.emit('end');
+};
+
+let onSuccess = function (message) {
+  if (settings.general.showNotifications) {
+    notifier.notify({
+      title: 'Gulp',
+      subtitle: 'Success',
+      message: message,
+      sound: 'Pop'
+    });
+  }
+};
+
+
 // Styles For SCSS
-gulp.task('styles:scss', () => {
-  return gulp.src(STYLES_SRC)
-    .pipe(plumber(function (err) {
-      console.log('Styles Task Error');
-      console.log(err);
-      this.emit('end');
-    }))
+gulp.task('styles:scss', (done) => {
+
+  var stream = gulp.src(STYLES_SRC)
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(sass().on('error', sass.logError))
@@ -148,35 +177,44 @@ gulp.task('styles:scss', () => {
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(STYLES_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()));
+
+  stream.on('end', function () {
+    onSuccess('Sass task completed!');
+    done();
+  });
+  stream.on('error', function (err) {
+    done(err);
+  });
 });
 
 // bundle library script files in js/libs folder
-gulp.task('script:libs', () => {
+gulp.task('script:libs', (done) => {
 
   const sources = [...settings.general.libScriptLoadFirst, ...LIB_SCRIPTS_SRC];
-  console.log(sources);
 
-  return gulp.src(sources)
-    .pipe(plumber(function (err) {
-      console.log('Scripts Task Error:', err);
-      this.emit('end');
-    }))
+  var stream = gulp.src(sources)
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(sourcemaps.init())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
     .pipe(concat('libs.min.js'))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
+
+  stream.on('end', function () {
+    onSuccess('script:libs task completed!');
+    done();
+  });
+  stream.on('error', function (err) {
+    done(err);
+  });
 });
 
-gulp.task('script:app', () => {
+gulp.task('script:app', (done) => {
   const sources = [...settings.general.appScriptLoadFirst, ...APP_SCRIPTS_SRC];
 
-  return gulp.src(sources)
-    .pipe(plumber(function (err) {
-      console.log('Scripts Task Error:', err);
-      this.emit('end');
-    }))
+  var stream = gulp.src(sources)
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
@@ -184,6 +222,14 @@ gulp.task('script:app', () => {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()));
+
+  stream.on('end', function () {
+    onSuccess('script:app task completed!');
+    done();
+  });
+  stream.on('error', function (err) {
+    done(err);
+  });
 });
 
 
@@ -193,6 +239,7 @@ gulp.task('eslint', () => {
   // Also, Be sure to return the stream from the task;
   // Otherwise, the task may end before the stream has finished.
   return gulp.src(APP_SCRIPTS_SRC)
+    .pipe(plumber({ errorHandler: onError }))
     // eslint() attaches the lint output to the "eslint" property
     // of the file object so it can be used by other modules.
     .pipe(eslint())
@@ -214,9 +261,10 @@ gulp.task('eslint', () => {
 // });
 
 // Image optimization
-gulp.task('optimizeImages', () => {
+gulp.task('optimizeImages', (done) => {
   console.log('Image optimization started! It will take a few minutes.');
-  return gulp.src(IMAGES_SRC)
+  var stream = gulp.src(IMAGES_SRC)
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(imagemin([
       imagemin.gifsicle({
         interlaced: true
@@ -240,34 +288,43 @@ gulp.task('optimizeImages', () => {
     ]))
     .pipe(gulp.dest(IMAGES_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
+
+  stream.on('end', function () {
+    onSuccess('optimizeImages task completed!');
+    done();
+  });
+  stream.on('error', function (err) {
+    done(err);
+  });
 });
 
 // File include for html files
-gulp.task('fileinclude:html', function () {
+gulp.task('fileinclude:html', function (done) {
 
   let stream = gulp
     // .src("./src/html/[^_]*.html")
     .src(HTMLS_SRC);
 
-  if ( settings.general.fileIncludeActive ) {
+  if (settings.general.fileIncludeActive) {
     stream.pipe(fileinclude({
       prefix: '@@',
       suffix: '',
       basepath: '@file',
       indent: true
     }))
+      .pipe(plumber({ errorHandler: onError }))
       .pipe(gulp.dest(HTMLS_DIST))
       .pipe(connect.reload())
       .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()));
   }
-
   return stream;
 });
 
 // Copy
 gulp.task('copy:images', () => {
-  gulp
+  return gulp
     .src(IMAGES_SRC)
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(gulp.dest(IMAGES_DIST))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()));
 });
@@ -281,18 +338,29 @@ gulp.task('imagesHandler', (cb) => {
 });
 
 // Export project as zip
-gulp.task('exportzip', () => {
-  return gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
+gulp.task('exportzip', (done) => {
+  let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(zip('website.zip'))
     .pipe(gulp.dest('./'));
+
+  stream.on('end', function () {
+    onSuccess('exportzip task completed!');
+    done();
+  });
+  stream.on('error', function (err) {
+    done(err);
+  });
 });
 
 // Delete dist folder
 gulp.task('clean', () => {
   return gulp.src(DIST_PATH, {
-      read: false
-    })
+    read: false
+  })
+    .pipe(plumber({ errorHandler: onError }))
     .pipe(clean());
+
 });
 
 // Default tasks
@@ -326,11 +394,14 @@ gulp.task('serve', () => {
 
 // Watch
 gulp.task('watch', () => {
+  let notificationSetting = settings.general.showNotifications;
 
+  settings.general.showNotifications = false;
   currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
   gulpSequence('default', 'serve', () => {
-    console.log('Watch mode started.');
+    settings.general.showNotifications = notificationSetting;
+    onSuccess('Watch mode started!');
   });
 
   gulp.watch(LIB_SCRIPTS_SRC, ['script:libs']);

@@ -1,39 +1,9 @@
-/*
- *
- * Variables
- *
- */
-$screen-xs-max: breakpoint-max(xs, $grid-breakpoints);
-$screen-sm-max: breakpoint-max(sm, $grid-breakpoints);
-$screen-md-max: breakpoint-max(md, $grid-breakpoints);
-$screen-lg-max: breakpoint-max(lg, $grid-breakpoints);
-
-$screen-xs-min: breakpoint-min(xs, $grid-breakpoints);
-$screen-sm-min: breakpoint-min(sm, $grid-breakpoints);
-$screen-md-min: breakpoint-min(md, $grid-breakpoints);
-$screen-lg-min: breakpoint-min(lg, $grid-breakpoints);
-
-$brand-primary: theme-color("primary");
-$brand-secondary: theme-color("secondary");
-$brand-success: theme-color("success");
-$brand-info: theme-color("info");
-$brand-warning: theme-color("warning");
-$brand-danger: theme-color("danger");
-$brand-light: theme-color("light");
-$brand-dark: theme-color("dark");
-
-$color-primary: $brand-primary;
-$color-secondary: $brand-secondary;
-$color-success: $brand-success;
-$color-info: $brand-info;
-$color-warning: $brand-warning;
-$color-danger: $brand-danger;
-$color-light: $brand-light;
-$color-dark: $brand-dark;
-
+$input-placeholder-color: #ccc;
 $gray-base: #000 !default;
 $gray-darker: lighten($gray-base, 13.5%) !default;
 $gray-dark: lighten($gray-base, 20%) !default;
 $gray: lighten($gray-base, 33.5%) !default;
 $gray-light: lighten($gray-base, 46.7%) !default;
 $gray-lighter: lighten($gray-base, 93.5%) !default;
+
+
