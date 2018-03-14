@@ -25,15 +25,10 @@ var concat = require('gulp-concat'),
   fileinclude = require('gulp-file-include'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
-  // notify = require('gulp-notify'),
   notifier = require('node-notifier');
 
 
-// babel import tests
-// var babelify = require('babelify'),
-//   browserify = require('browserify'),
-//   source = require('vinyl-source-stream'),
-//   buffer = require('vinyl-buffer');
+
 
 
 // Asset paths
@@ -187,7 +182,6 @@ let onError = function (error) {
   popNotification('error', error.message);
 };
 
-
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
 
@@ -265,7 +259,6 @@ gulp.task('script:app', (done) => {
   });
 });
 
-
 gulp.task('eslint', () => {
   // ESLint ignores files with "node_modules" paths.
   // So, it's best to have gulp ignore the directory as well.
@@ -285,15 +278,6 @@ gulp.task('eslint', () => {
     // lint error, return the stream and pipe to failAfterError last.
     .pipe(eslint.failAfterError());
 });
-
-// gulp.task('testt', () => {
-//   browserify(['./src/assets/js/app/app.js'])
-//     .transform(babelify)
-//     .bundle()
-//     .pipe(source('ddd.js'))
-//     .pipe(gulp.dest(SCRIPTS_DIST))
-//     .pipe(buffer()); // You need this if you want to continue using the stream with other plugins
-// });
 
 // Image optimization
 gulp.task('optimizeImages', (done) => {
@@ -365,16 +349,26 @@ gulp.task('fileinclude:html', function () {
 });
 
 // Copy
-gulp.task('copy:images', () => {
-  return gulp
+gulp.task('copy:images', (done) => {
+  let errorHappened = false;
+
+  let stream = gulp
     .src(IMAGES_SRC)
     .pipe(plumber(function (err) {
       onError(err);
     }))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
     .pipe(gulp.dest(IMAGES_DIST));
+
+  stream.on('end', function () {
+    if (!errorHappened) {
+      popNotification('success', 'copy:images task completed!');
+    }
+    done();
+  });
 });
 
+// Check if images should copy directly to dist or compress before copy
 gulp.task('imagesHandler', (cb) => {
   if (settings[currentMode].optimizeImages) {
     gulpSequence('optimizeImages', cb);
@@ -430,7 +424,6 @@ gulp.task('default', (cb) => {
     cb); // after clean task finished, calls other tasks
 });
 
-
 // Export project for production to dist folder
 gulp.task('export', (cb) => {
 
@@ -446,14 +439,15 @@ gulp.task('export', (cb) => {
       cb();
       settings.general.showNotifications = notificationSetting;
       if (!errorAtFirstStart) {
+        console.log('Export completed successfully!');
         popNotification('success', 'Export completed successfully!');
       } else {
+        console.log('Export completed with some errors!');
         popNotification('warning', 'Export completed with some errors!');
       }
     }
   );
 });
-
 
 // Serve
 gulp.task('serve', () => {
