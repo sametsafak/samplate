@@ -35,7 +35,7 @@ var concat = require('gulp-concat'),
 var LIB_SCRIPTS_SRC = ['./src/assets/js/libs/**/*.js'],
   APP_SCRIPTS_SRC = ['./src/assets/js/app/**/*.js'],
   STYLES_SRC = ['./src/assets/sass/**/*.scss'],
-  IMAGES_SRC = ['./src/assets/img/**/*.{png,jpeg,jpg,svg,gif}'];
+  IMAGES_SRC = ['./src/assets/img/**/*.*'];
 
 // Html paths
 var HTMLS_ALL_SRC = ['./src/**/*.html'], // Gives all htmls for gulp watch
@@ -53,6 +53,7 @@ var defaultSettings = {
   general: {
     fileInclude: true,
     showNotifications: true,
+    copytoDistPaths: [],
     appScriptLoadFirst: [
       // examples
       // './src/assets/js/app/helper.js',
@@ -93,6 +94,7 @@ var userSettings = {
   general: {
     fileIncludeActive: true,
     showNotifications: true,
+    copytoDistPaths: ['./src/copyme/**/*'],
     appScriptLoadFirst: [
       './src/assets/js/app/helper.js',
       './src/assets/js/app/methods2.js'
@@ -130,7 +132,7 @@ var userSettings = {
 
 var settings = Object.assign(defaultSettings, userSettings);
 var currentMode = 'watch'; // 'watch' or 'export'
-var errorAtFirstStart = false;
+var errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
 
 
 let popNotification = function (type, message) {
@@ -348,7 +350,7 @@ gulp.task('fileinclude:html', function () {
   return stream;
 });
 
-// Copy
+// Copy images
 gulp.task('copy:images', (done) => {
   let errorHappened = false;
 
@@ -363,6 +365,26 @@ gulp.task('copy:images', (done) => {
   stream.on('end', function () {
     if (!errorHappened) {
       popNotification('success', 'copy:images task completed!');
+    }
+    done();
+  });
+});
+
+// Copy given paths
+gulp.task('copy:givenpaths', (done) => {
+  let errorHappened = false;
+
+  let stream = gulp
+    .src(settings.general.copytoDistPaths, { base: './src/' })
+    .pipe(plumber(function (err) {
+      onError(err);
+    }))
+    // .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(DIST_PATH));
+
+  stream.on('end', function () {
+    if (!errorHappened) {
+      popNotification('success', 'copy:givenpaths task completed!');
     }
     done();
   });
@@ -419,7 +441,8 @@ gulp.task('default', (cb) => {
       'eslint',
       'script:libs',
       'script:app',
-      'imagesHandler'
+      'imagesHandler',
+      'copy:givenpaths'
     ],
     cb); // after clean task finished, calls other tasks
 });
