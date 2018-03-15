@@ -135,20 +135,34 @@ let popNotification = function (type, message) {
   }
 };
 
-let onError = function (error) {
+let onError = function (error, streamsThis, tasksThis) {
   errorAtFirstStart = true;
   console.log(error);
   popNotification('error', error.message);
+  if (streamsThis) {
+    tasksThis.errorHappened = true;
+  }
+  if (tasksThis) {
+    streamsThis.emit('end');
+  }
+};
+
+let asd = function (self, message, cb) {
+  if (!self.errorHappened) {
+    popNotification('success', message);
+  }
+  cb();
 };
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
 
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
   let stream = gulp.src(STYLES_SRC)
     .pipe(plumber(function (err) {
-      onError(err);
-      errorHappened = true;
+      onError(err, this, self);
     }))
     .pipe(sourcemaps.init())
     .pipe(sass())
@@ -160,10 +174,7 @@ gulp.task('styles:scss', function (done) {
     .pipe(gulp.dest(STYLES_DIST));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'styles:sass task completed!');
-    }
-    done();
+    asd(self, 'styles:sass task completed!', done);
   });
 });
 
@@ -171,12 +182,13 @@ gulp.task('styles:scss', function (done) {
 gulp.task('script:libs', (done) => {
 
   const sources = [...settings.general.libScriptLoadFirst, ...LIB_SCRIPTS_SRC];
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   var stream = gulp.src(sources)
     .pipe(plumber(function (err) {
-      onError(err);
-      errorHappened = true;
+      onError(err, this, self);
     }))
     .pipe(sourcemaps.init())
     .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
@@ -186,21 +198,19 @@ gulp.task('script:libs', (done) => {
     .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'script:libs task completed!');
-    }
-    done();
+    asd(self, 'script:libs task completed!', done);
   });
 });
 
 gulp.task('script:app', (done) => {
   const sources = [...settings.general.appScriptLoadFirst, ...APP_SCRIPTS_SRC];
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   var stream = gulp.src(sources)
     .pipe(plumber(function (err) {
-      onError(err);
-      errorHappened = true;
+      onError(err, this, self);
     }))
     .pipe(sourcemaps.init())
     .pipe(babel())
@@ -211,10 +221,7 @@ gulp.task('script:app', (done) => {
     .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'script:app task completed!');
-    }
-    done();
+    asd(self, 'script:app task completed!', done);
   });
 });
 
@@ -241,12 +248,13 @@ gulp.task('eslint', () => {
 // Image optimization
 gulp.task('optimizeImages', (done) => {
   console.log('Image optimization started! It will take a few minutes.');
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   let stream = gulp.src(IMAGES_SRC)
     .pipe(plumber(function (err) {
-      onError(err);
-      errorHappened = true;
+      onError(err, this, self);
     }))
     .pipe(imagemin([
       imagemin.gifsicle({
@@ -275,10 +283,7 @@ gulp.task('optimizeImages', (done) => {
     .pipe(gulp.dest(IMAGES_DIST));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'optimizeImages task completed!');
-    }
-    done();
+    asd(self, 'optimizeImages task completed!', done);
   });
 
 });
@@ -309,7 +314,9 @@ gulp.task('fileinclude:html', function () {
 
 // Copy images
 gulp.task('copy:images', (done) => {
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   let stream = gulp
     .src(IMAGES_SRC)
@@ -320,16 +327,15 @@ gulp.task('copy:images', (done) => {
     .pipe(gulp.dest(IMAGES_DIST));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'copy:images task completed!');
-    }
-    done();
+    asd(self, 'copy:images task completed!', done);
   });
 });
 
 // Copy given paths
 gulp.task('copy:givenpaths', (done) => {
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   let stream = gulp
     .src(settings.general.copytoDistPaths, { base: './src/' })
@@ -340,10 +346,7 @@ gulp.task('copy:givenpaths', (done) => {
     .pipe(gulp.dest(DIST_PATH));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'copy:givenpaths task completed!');
-    }
-    done();
+    asd(self, 'copy:givenpaths task completed!', done);
   });
 });
 
@@ -358,21 +361,19 @@ gulp.task('imagesHandler', (cb) => {
 
 // Export project as zip
 gulp.task('exportzip', (done) => {
-  let errorHappened = false;
+  let self = this;
+
+  self.errorHappened = false;
 
   let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
     .pipe(plumber(function (err) {
-      onError(err);
-      errorHappened = true;
+      onError(err, this, self);
     }))
     .pipe(zip('website.zip'))
     .pipe(gulp.dest('./'));
 
   stream.on('end', function () {
-    if (!errorHappened) {
-      popNotification('success', 'exportzip task completed!');
-    }
-    done();
+    asd(self, 'exportzip task completed!', done);
   });
 });
 
