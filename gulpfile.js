@@ -103,27 +103,24 @@ let popNotification = function (type, message) {
   case 'error':
     obj.title = 'Error';
     obj.timeout = 4;
-    obj.remove = 0;
     obj.sound = 'Morse';
     break;
   case 'warning':
     obj.title = 'Warning';
     obj.timeout = 4;
-    obj.remove = 1;
     obj.sound = 'Purr';
     break;
   case 'success':
     obj.title = 'Success';
     obj.timeout = 2;
-    obj.remove = 1;
     obj.sound = 'Pop';
     break;
   default:
     obj.title = 'Samplate';
     obj.timeout = 4;
-    obj.remove = 1;
     obj.sound = 'Pop';
   }
+
 
   if (settings.general.showNotifications) {
     notifier.notify({
@@ -131,8 +128,7 @@ let popNotification = function (type, message) {
       subtitle: obj.title,
       message: message,
       sound: obj.sound,
-      timeout: obj.timeout,
-      remove: obj.remove
+      timeout: obj.timeout
     });
   } else {
     console.log(message);
