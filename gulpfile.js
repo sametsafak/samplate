@@ -15,6 +15,11 @@ var imagemin = require('gulp-imagemin'),
   imageminPngquant = require('imagemin-pngquant'),
   imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
+// webpack for support import export for js files
+var webpack = require('webpack'),
+  webpackStream = require('webpack-stream'),
+  webpackConfig = require('./webpack.config.js');
+
 // Common packages
 var concat = require('gulp-concat'),
   plumber = require('gulp-plumber'),
@@ -153,6 +158,12 @@ let asd = function (self, message, cb) {
   }
   cb();
 };
+
+gulp.task('js', () => {
+  gulp.src('./src/js/index.js')
+    .pipe(webpackStream(webpackConfig), webpack)
+    .pipe(gulp.dest('./dist/js'));
+});
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
