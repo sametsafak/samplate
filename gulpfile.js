@@ -34,6 +34,11 @@ var concat = require('gulp-concat'),
 
 
 
+gulp.task('js', () => {
+  gulp.src('./src/assets/js/index.js')
+    .pipe(webpackStream(webpackConfig), webpack)
+    .pipe(gulp.dest('./dist/js'));
+});
 
 
 // Asset paths
@@ -159,11 +164,13 @@ let asd = function (self, message, cb) {
   cb();
 };
 
-gulp.task('js', () => {
-  gulp.src('./src/js/index.js')
-    .pipe(webpackStream(webpackConfig), webpack)
-    .pipe(gulp.dest('./dist/js'));
+// webpack test
+gulp.task('webpack', (done) => {
+  return gulp.src('./src/assets/js/entry.js')
+    .pipe(webpack())
+    .pipe(gulp.dest('dist/'));
 });
+
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
