@@ -3,6 +3,10 @@ module.exports = {
     fileIncludeActive: true,
     showNotifications: true,
     copytoDistPaths: ['./src/copyme/**/*'],
+    bundles: {
+      a: ['./src/scripts/a/a2.js', './src/scripts/a/**/*.js'],
+      b: './src/scripts/b/**/*.js'
+    },
     appScriptLoadFirst: [
       './src/assets/js/app/helper.js',
       './src/assets/js/app/methods2.js'

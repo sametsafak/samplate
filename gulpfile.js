@@ -7,7 +7,6 @@ var sass = require('gulp-sass'),
 
 // Script packages
 var babel = require('gulp-babel'),
-  uglify = require('gulp-uglify'),
   eslint = require('gulp-eslint');
 
 // Image compression packages
@@ -30,7 +29,12 @@ var concat = require('gulp-concat'),
   fileinclude = require('gulp-file-include'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
-  notifier = require('node-notifier');
+  uglify = require('gulp-uglify'),
+  notifier = require('node-notifier'),
+  fs = require('fs'),
+  path = require('path'),
+  merge = require('merge-stream'),
+  rename = require('gulp-rename');
 
 
 
@@ -195,6 +199,49 @@ gulp.task('styles:scss', function (done) {
     asd(self, 'styles:sass task completed!', done);
   });
 });
+
+var scriptsPath = './src/scripts/';
+
+
+// bundle test
+gulp.task('scripts:bundle', function () {
+
+  let self = this;
+  let bundles = Object.keys(settings.general.bundles);
+
+  let tasks = bundles.map(function (bundle) { // loops every bundle key inside of bundles object
+    let sources = settings.general.bundles[bundle];
+
+    return gulp.src(sources) // value of bundle key in settings object
+      // .pipe(concat(bundle + '.js'))
+      // .pipe(gulp.dest(scriptsPath))
+      // .pipe(uglify())
+      // .pipe(rename(bundle + '.min.js'))
+      // pipe(gulp.dest(scriptsPath))
+
+      .pipe(plumber(function (err) {
+        onError(err, this, self);
+      }))
+      .pipe(sourcemaps.init())
+      .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
+      .pipe(concat(bundle + '.js'))
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
+      .pipe(gulp.dest(SCRIPTS_DIST));
+  });
+
+  // process all remaining files in scriptsPath root into main.js and main.min.js files
+  var root = gulp.src(path.join(scriptsPath, '/*.js'))
+    .pipe(concat('main.js'))
+    .pipe(gulp.dest(scriptsPath))
+    .pipe(uglify())
+    .pipe(rename('main.min.js'))
+    .pipe(gulp.dest(scriptsPath));
+
+  return merge(tasks, root);
+  // return tasks;
+});
+
 
 // bundle library script files in js/libs folder
 gulp.task('script:libs', (done) => {
