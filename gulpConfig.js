@@ -4,17 +4,9 @@ module.exports = {
     showNotifications: true,
     copytoDistPaths: ['./src/copyme/**/*'],
     bundles: {
-      a: ['./src/scripts/a/a2.js', './src/scripts/a/**/*.js'],
-      b: './src/scripts/b/**/*.js'
-    },
-    appScriptLoadFirst: [
-      './src/assets/js/app/helper.js',
-      './src/assets/js/app/methods2.js'
-    ],
-    libScriptLoadFirst: [
-      './src/assets/js/libs/zzz.js',
-      './src/assets/js/libs/jquery.js'
-    ]
+      a: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js'],
+      b: './src/assets/js/b/**/*.js'
+    }
   },
   watch: {
     serve: true,

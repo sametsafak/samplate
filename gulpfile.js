@@ -46,8 +46,7 @@ gulp.task('js', () => {
 
 
 // Asset paths
-var LIB_SCRIPTS_SRC = ['./src/assets/js/libs/**/*.js'],
-  APP_SCRIPTS_SRC = ['./src/assets/js/app/**/*.js'],
+var SCRIPTS_SRC = ['./src/assets/js/**/*.js'],
   STYLES_SRC = ['./src/assets/sass/**/*.scss'],
   IMAGES_SRC = ['./src/assets/img/**/*.*'];
 
@@ -161,7 +160,7 @@ let onError = function (error, streamsThis, tasksThis) {
   }
 };
 
-let asd = function (self, message, cb) {
+let streamEndHandler = function (self, message, cb) {
   if (!self.errorHappened) {
     popNotification('success', message);
   }
@@ -196,29 +195,25 @@ gulp.task('styles:scss', function (done) {
     .pipe(gulp.dest(STYLES_DIST));
 
   stream.on('end', function () {
-    asd(self, 'styles:sass task completed!', done);
+    streamEndHandler(self, 'styles:sass task completed!', done);
   });
 });
 
-var scriptsPath = './src/scripts/';
-
 
 // bundle test
-gulp.task('scripts:bundle', function () {
+gulp.task('scripts:bundle', function (done) {
 
   let self = this;
   let bundles = Object.keys(settings.general.bundles);
+  let stream;
+
+  self.errorHappened = false;
 
   let tasks = bundles.map(function (bundle) { // loops every bundle key inside of bundles object
+
     let sources = settings.general.bundles[bundle];
 
-    return gulp.src(sources) // value of bundle key in settings object
-      // .pipe(concat(bundle + '.js'))
-      // .pipe(gulp.dest(scriptsPath))
-      // .pipe(uglify())
-      // .pipe(rename(bundle + '.min.js'))
-      // pipe(gulp.dest(scriptsPath))
-
+    stream = gulp.src(sources) // value of bundle key in settings object
       .pipe(plumber(function (err) {
         onError(err, this, self);
       }))
@@ -226,25 +221,31 @@ gulp.task('scripts:bundle', function () {
       .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
       .pipe(concat(bundle + '.js'))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
+      // .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
       .pipe(gulp.dest(SCRIPTS_DIST));
   });
 
+  stream.on('end', function () {
+
+    console.log('DAN');
+    done();
+    // streamEndHandler(self, 'script:bundle task completed!', done);
+  });
+
   // process all remaining files in scriptsPath root into main.js and main.min.js files
-  var root = gulp.src(path.join(scriptsPath, '/*.js'))
+  /* var root = gulp.src(SCRIPTS_SRC)
     .pipe(concat('main.js'))
-    .pipe(gulp.dest(scriptsPath))
+    .pipe(gulp.dest(SCRIPTS_DIST))
     .pipe(uglify())
     .pipe(rename('main.min.js'))
-    .pipe(gulp.dest(scriptsPath));
+    .pipe(gulp.dest(SCRIPTS_DIST));
 
-  return merge(tasks, root);
-  // return tasks;
+  return merge(tasks, root);*/
 });
 
 
 // bundle library script files in js/libs folder
-gulp.task('script:libs', (done) => {
+/* gulp.task('script:libs', (done) => {
 
   const sources = [...settings.general.libScriptLoadFirst, ...LIB_SCRIPTS_SRC];
   let self = this;
@@ -263,7 +264,7 @@ gulp.task('script:libs', (done) => {
     .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    asd(self, 'script:libs task completed!', done);
+    streamEndHandler(self, 'script:libs task completed!', done);
   });
 });
 
@@ -286,28 +287,49 @@ gulp.task('script:app', (done) => {
     .pipe(gulp.dest(SCRIPTS_DIST));
 
   stream.on('end', function () {
-    asd(self, 'script:app task completed!', done);
+    streamEndHandler(self, 'script:app task completed!', done);
   });
-});
+});*/
 
-gulp.task('eslint', () => {
+gulp.task('eslint', function (done) {
+
+  let self = this;
+
+  self.errorHappened = false;
+
   // ESLint ignores files with "node_modules" paths.
   // So, it's best to have gulp ignore the directory as well.
   // Also, Be sure to return the stream from the task;
   // Otherwise, the task may end before the stream has finished.
-  return gulp.src(APP_SCRIPTS_SRC)
-    .pipe(plumber(function (err) {
-      onError(err);
-    }))
+  let stream = gulp.src(SCRIPTS_SRC)
     // eslint() attaches the lint output to the "eslint" property
     // of the file object so it can be used by other modules.
     .pipe(eslint())
+    .pipe(plumber(function (err) {
+      onError(err, this, self);
+    }))
     // eslint.format() outputs the lint results to the console.
     // Alternatively use eslint.formatEach() (see Docs).
-    .pipe(eslint.format())
+    .pipe(eslint.format());
     // To have the process exit with an error code (1) on
     // lint error, return the stream and pipe to failAfterError last.
-    .pipe(eslint.failAfterError());
+    // .pipe(eslint.failAfterError());
+
+  stream.on('error', function () {
+    console.log('444444444444444444444 erör');
+    // streamEndHandler(self, 'eslint task completed!', done);
+  });
+  stream.on('end', function () {
+    console.log('7444444444444444444 end');
+    streamEndHandler(self, 'eslint task completed!', done);
+  });
+  stream.on('unpipe', function () {
+    console.log('7444444444444444444 unpipe');
+    done();
+    // streamEndHandler(self, 'eslint task completed!', done);
+  });
+
+  // return stream;
 });
 
 // Image optimization
@@ -348,7 +370,7 @@ gulp.task('optimizeImages', (done) => {
     .pipe(gulp.dest(IMAGES_DIST));
 
   stream.on('end', function () {
-    asd(self, 'optimizeImages task completed!', done);
+    streamEndHandler(self, 'optimizeImages task completed!', done);
   });
 
 });
@@ -392,7 +414,7 @@ gulp.task('copy:images', (done) => {
     .pipe(gulp.dest(IMAGES_DIST));
 
   stream.on('end', function () {
-    asd(self, 'copy:images task completed!', done);
+    streamEndHandler(self, 'copy:images task completed!', done);
   });
 });
 
@@ -411,7 +433,7 @@ gulp.task('copy:givenpaths', (done) => {
     .pipe(gulp.dest(DIST_PATH));
 
   stream.on('end', function () {
-    asd(self, 'copy:givenpaths task completed!', done);
+    streamEndHandler(self, 'copy:givenpaths task completed!', done);
   });
 });
 
@@ -438,7 +460,7 @@ gulp.task('exportzip', (done) => {
     .pipe(gulp.dest('./'));
 
   stream.on('end', function () {
-    asd(self, 'exportzip task completed!', done);
+    streamEndHandler(self, 'exportzip task completed!', done);
   });
 });
 
@@ -462,8 +484,7 @@ gulp.task('default', (cb) => {
       'fileinclude:html',
       'styles:scss',
       'eslint',
-      'script:libs',
-      'script:app',
+      'scripts:bundle',
       'imagesHandler',
       'copy:givenpaths'
     ],
@@ -521,8 +542,7 @@ gulp.task('watch', () => {
     }
   });
 
-  gulp.watch(LIB_SCRIPTS_SRC, ['script:libs']);
-  gulp.watch(APP_SCRIPTS_SRC, ['script:app']);
+  gulp.watch(SCRIPTS_SRC, ['scripts:bundle', 'eslint']);
   gulp.watch(STYLES_SRC, ['styles:scss']);
   gulp.watch(IMAGES_SRC, ['copy:images']);
   gulp.watch(HTMLS_ALL_SRC, ['fileinclude:html']);

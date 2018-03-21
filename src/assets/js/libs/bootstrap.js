@@ -1,2 +1,0 @@
-// bootstrap
-console.log('bootstrap');
