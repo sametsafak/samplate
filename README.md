@@ -139,15 +139,15 @@ Write to terminal:
 
 Command  | Description
 -------- | -----------
-watch | Starts watch mode.
-styles:scss | Compiles css files from sass files. Creates sourcemaps, autoprefixes, and minifies.
+watch | Start watch mode.
+styles:scss | Compile css files from sass files. Create sourcemaps, autoprefixes, and minifiy them.
 scripts:bundle | Bundle script files. Babel is included (without import/export using) so you can write es6 codes. They will be transpiled via Babel to es5! You can enable or disable babel for each bundle inside of _gulp.config.js_ file. It creates sourcemaps also.
 eslint | Lints the scripts. You can enable or disable if for each bundle _gulp.config.js_ file.
 optimizeImages | Optimize images (gif, jpeg, svg, png).
 fileinclude | Compile htmls with added partials like header.html, footer.html etc.
 copy:images | Copy images to dist folder.
 copy:givenpaths | Copy paths to dist folder.
-exportzip | Exports project as zip file.
+exportzip | Export project as zip file.
 clean | Clean dist folder.
-default |  Or just write __gulp__ to the terminal. It makes same tasks of watch mode except watching files.
+default |  Or just write __gulp__ to the terminal. It makes same tasks of **watch mode** except watching files.
 export | Export project for **production.**
