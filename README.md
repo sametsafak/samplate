@@ -60,16 +60,16 @@ bundles."bundle name".lint  | Type: `Boolean` <br>Default: `false`  |   Lint fil
 bundles."bundle name".files  | Type: `Glob` |  Files/Folders list
 watch/export  | Type: `Object` <br>Default: `true`  |   Watch or Export settings object
 watch/export.**serve** | Type: `Boolean` <br>Default: `true`  |   Http server enabled or disabled
-watch/export.**uglifyScripts** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`  |   Uglify JS files enabled or disabled
-watch/export.**minifyCss** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Minify Sass files enabled or disabled
-watch/export.**optimizeImages** | Type: <br>Default for watch `true`, Default for export `false`   |   Optimize images enabled or disabled
+watch/export.**uglifyScripts** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`  |   Uglify JS files enabled or disabled
+watch/export.**minifyCss** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`   |   Minify Sass files enabled or disabled
+watch/export.**optimizeImages** | Type: <br>Default for watch `true`<br> Default for export `false`   |   Optimize images enabled or disabled
 watch/export.**refreshPageAfter** | Type: `Object` |   Refresh page after change setting object
-watch/export.refreshPageAfter.**fileInclude** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Html change
-watch/export.refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Sass change
-watch/export.refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Js change
-watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Image change
+watch/export.refreshPageAfter.**fileInclude** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`   |   Refresh page after Html change
+watch/export.refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`   |   Refresh page after Sass change
+watch/export.refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`   |   Refresh page after Js change
+watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch `true`<br> Default for export `false`   |   Refresh page after Image change
 
-# Example Settings Object
+### Example of Settings Object
 
  ```javascript
  module.exports = {
