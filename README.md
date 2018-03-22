@@ -41,33 +41,33 @@ You can change the settings of boilerplate with  _gulp.config.js_ file.
 Key  | Info |  Description
 ----- | ------------------  |  -------
 paths | Type: `Object` |  Set files' paths
-paths.SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like **['./src/first.js', './src/second.js']**)
-paths.STYLES_SRC | Type: `Glob`  |   Sass files' paths
-paths.IMAGES_SRC | Type: `Glob` |   Image files' paths
-paths.HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
-paths.HTMLS_ALL_SRC | Type: `Glob`  |   Gives all html files' paths to gulp for watch task
-paths.DIST_PATH | Type: `Glob`  |   Files processed and exported into this folder
-paths.SCRIPTS_DIST | Type: `Glob` |   Script files processed and exported into this folder
-paths.STYLES_DIST | Type: `Glob`  |   Sass files processed and exported into this folder
-paths.IMAGES_DIST | Type: `Glob`  |   Image files processed and exported into this folder
-paths.HTMLS_DIST | Type: `Glob`  |   Html files processed and exported into this folder
+paths.<br>SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like **['./src/first.js', './src/second.js']**)
+paths.<br>STYLES_SRC | Type: `Glob`  |   Sass files' paths
+paths.<br>IMAGES_SRC | Type: `Glob` |   Image files' paths
+paths.<br>HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
+paths.<br>HTMLS_ALL_SRC | Type: `Glob`  |   Gives all html files' paths to gulp for watch task
+paths.<br>DIST_PATH | Type: `Glob`  |   Files processed and exported into this folder
+paths.<br>SCRIPTS_DIST | Type: `Glob` |   Script files processed and exported into this folder
+paths.<br>STYLES_DIST | Type: `Glob`  |   Sass files processed and exported into this folder
+paths.<br>IMAGES_DIST | Type: `Glob`  |   Image files processed and exported into this folder
+paths.<br>HTMLS_DIST | Type: `Glob`  |   Html files processed and exported into this folder
 fileIncludeActive  | Type: `Boolean` <br>Default: `true`  |   Html file include enabled or disabled
 showNotifications  | Type: `Boolean` <br>Default: `true`  |   Show native notifications for some tasks
 copytoDistPaths  | Type: `Glob`  |   Files or folders that should directly copy to dist folder
 bundles  | Type: `Object`  |   Setting object for javascript bundles
-bundles."bundle name".babel  | Type: `Boolean` <br>Default: `false`  |   Transpile files with babel or not
-bundles."bundle name".lint  | Type: `Boolean` <br>Default: `false`  |   Lint files via eslint or not
-bundles."bundle name".files  | Type: `Glob` |  Files/Folders list
+bundles.<br>"bundle name".babel  | Type: `Boolean` <br>Default: `false`  |   Transpile files with babel or not
+bundles.<br>"bundle name".lint  | Type: `Boolean` <br>Default: `false`  |   Lint files via eslint or not
+bundles.<br>"bundle name".files  | Type: `Glob` |  Files/Folders list
 watch/export  | Type: `Object` <br>Default: `true`  |   Watch or Export settings object
 watch/export.**serve** | Type: `Boolean` <br>Default: `true`  |   Http server enabled or disabled
-watch/export.**uglifyScripts** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`  |   Uglify JS files enabled or disabled
-watch/export.**minifyCss** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Minify Sass files enabled or disabled
-watch/export.**optimizeImages** | Type: <br>Default for watch: `true`<br> Default for export: `false`   |   Optimize images enabled or disabled
-watch/export.**refreshPageAfter** | Type: `Object` |   Refresh page after change setting object
-watch/export.refreshPageAfter.**fileInclude** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Html change
-watch/export.refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Sass change
-watch/export.refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Js change
-watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Image change
+watch/export.<br>**uglifyScripts** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`  |   Uglify JS files enabled or disabled
+watch/export.<br>**minifyCss** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Minify Sass files enabled or disabled
+watch/export.<br>**optimizeImages** | Type: <br>Default for watch: `true`<br> Default for export: `false`   |   Optimize images enabled or disabled
+watch/export.<br>**refreshPageAfter** | Type: `Object` |   Refresh page after change setting object
+watch/export.<br>refreshPageAfter.**fileInclude** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Html change
+watch/export.<br>refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Sass change
+watch/export.<br>refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Js change
+watch/export.<br>refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch: `true`<br> Default for export: `false`   |   Refresh page after Image change
 
 ### Example of Settings Object
 
