@@ -14,11 +14,6 @@ var imagemin = require('gulp-imagemin'),
   imageminPngquant = require('imagemin-pngquant'),
   imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
-// webpack for support import export for js files
-var webpack = require('webpack'),
-  webpackStream = require('webpack-stream'),
-  webpackConfig = require('./webpack.config.js');
-
 // Common packages
 var concat = require('gulp-concat'),
   plumber = require('gulp-plumber'),
@@ -35,22 +30,10 @@ var concat = require('gulp-concat'),
 // let merge = require('merge-stream');
 
 
-
-
 var defaultSettings = {
   fileInclude: true,
   showNotifications: true,
   copytoDistPaths: [],
-  appScriptLoadFirst: [
-    // examples
-    // './src/assets/js/app/helper.js',
-    // './src/assets/js/app/methods2.js'
-  ],
-  libScriptLoadFirst: [
-    // examples
-    // './src/assets/js/libs/jquery.js'
-    // './src/assets/js/libs/bootstrap.js'
-  ],
   watch: {
     serve: false,
     uglifyScripts: false,
@@ -313,18 +296,27 @@ gulp.task('eslint', function () {
 
   let self = this;
 
+  let bundles = Object.keys(settings.bundles);
+  let stream;
+
   self.errorHappened = false;
 
-  return gulp.src(path.SCRIPTS_SRC)
-    .pipe(eslint())
-    .pipe(plumber(function (err) {
-      onError(err, this, self);
-    }))
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError())
-    .on('end', function () {
-      streamEndHandler(self, 'eslint task completed!');
-    });
+  bundles.map(function (bundle) {
+    let sources = settings.bundles[bundle].files;
+
+    stream = gulp.src(sources) // value of bundle key in settings object
+      .pipe(gulpif(settings.bundles[bundle].lint, eslint()))
+      .pipe(plumber(function (err) {
+        onError(err, this, self);
+      }))
+      .pipe(gulpif(settings.bundles[bundle].lint, eslint.format()))
+      .pipe(gulpif(settings.bundles[bundle].lint, eslint.failAfterError()))
+      .on('end', function () {
+        streamEndHandler(self, 'eslint task completed!');
+      });
+  });
+
+  return stream;
 });
 
 // Image optimization
