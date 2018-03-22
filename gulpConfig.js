@@ -4,8 +4,14 @@ module.exports = {
     showNotifications: true,
     copytoDistPaths: ['./src/copyme/**/*'],
     bundles: {
-      a: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js'],
-      b: './src/assets/js/b/**/*.js'
+      a: {
+        babel: true,
+        files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
+      },
+      b: {
+        babel: false,
+        files: './src/assets/js/b/**/*.js'
+      }
     }
   },
   watch: {

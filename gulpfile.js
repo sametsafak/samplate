@@ -30,11 +30,9 @@ var concat = require('gulp-concat'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
   uglify = require('gulp-uglify'),
-  notifier = require('node-notifier'),
-  fs = require('fs'),
-  path = require('path'),
-  merge = require('merge-stream'),
-  rename = require('gulp-rename');
+  notifier = require('node-notifier');
+
+  // let merge = require('merge-stream');
 
 
 
@@ -164,11 +162,13 @@ let streamEndHandler = function (self, message, cb) {
   if (!self.errorHappened) {
     popNotification('success', message);
   }
-  cb();
+  if (cb) {
+    cb();
+  }
 };
 
 // webpack test
-gulp.task('webpack', (done) => {
+gulp.task('webpack', () => {
   return gulp.src('./src/assets/js/entry.js')
     .pipe(webpack())
     .pipe(gulp.dest('dist/'));
@@ -209,15 +209,17 @@ gulp.task('scripts:bundle', function (done) {
 
   self.errorHappened = false;
 
-  let tasks = bundles.map(function (bundle) { // loops every bundle key inside of bundles object
+  // let tasks = bundles.map(function (bundle) { // loops every bundle key inside of bundles object
+  bundles.map(function (bundle) { // loops every bundle key inside of bundles object
 
-    let sources = settings.general.bundles[bundle];
+    let sources = settings.general.bundles[bundle].files;
 
     stream = gulp.src(sources) // value of bundle key in settings object
       .pipe(plumber(function (err) {
         onError(err, this, self);
       }))
       .pipe(sourcemaps.init())
+      .pipe(gulpif(settings.general.bundles[bundle].babel, babel()))
       .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
       .pipe(concat(bundle + '.js'))
       .pipe(sourcemaps.write('.'))
@@ -226,10 +228,8 @@ gulp.task('scripts:bundle', function (done) {
   });
 
   stream.on('end', function () {
-
-    console.log('DAN');
-    done();
-    // streamEndHandler(self, 'script:bundle task completed!', done);
+    // done();
+    streamEndHandler(self, 'script:bundle task completed!', done);
   });
 
   // process all remaining files in scriptsPath root into main.js and main.min.js files
@@ -291,7 +291,7 @@ gulp.task('script:app', (done) => {
   });
 });*/
 
-gulp.task('eslint', function (done) {
+/* gulp.task('eslint', function (done) {
 
   let self = this;
 
@@ -306,14 +306,15 @@ gulp.task('eslint', function (done) {
     // of the file object so it can be used by other modules.
     .pipe(eslint())
     .pipe(plumber(function (err) {
+      console.log('555555555555555555 erör');
       onError(err, this, self);
     }))
     // eslint.format() outputs the lint results to the console.
     // Alternatively use eslint.formatEach() (see Docs).
-    .pipe(eslint.format());
+    .pipe(eslint.format())
     // To have the process exit with an error code (1) on
     // lint error, return the stream and pipe to failAfterError last.
-    // .pipe(eslint.failAfterError());
+    .pipe(eslint.failAfterError());
 
   stream.on('error', function () {
     console.log('444444444444444444444 erör');
@@ -330,6 +331,24 @@ gulp.task('eslint', function (done) {
   });
 
   // return stream;
+});*/
+
+gulp.task('eslint', function () {
+
+  let self = this;
+
+  self.errorHappened = false;
+
+  return gulp.src(SCRIPTS_SRC)
+    .pipe(eslint())
+    .pipe(plumber(function (err) {
+      onError(err, this, self);
+    }))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError())
+    .on('end', function () {
+      streamEndHandler(self, 'eslint task completed!');
+    });
 });
 
 // Image optimization
