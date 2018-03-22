@@ -6,19 +6,19 @@ This boilerplate can be [configured](#how-can-i-configure-it) via gulp.config.js
 
 You can see the process of tasks' via **native os notifications!**
 
-This boiler plate has an **http server** and **file includer!** You **don't** have to use **php** or something else to include an **html file inside of another html file** like *header.html*
+This boiler plate has an **http server** and **file includer!** You don't have to use **php** or something else to include an html file inside of another html file like *header.html*
 
 ### What can I do with this boilerplate?
 
-* Compile and auto prefix **sass** files (**it has some helper classes like margins, paddings etc.**)
+* Compile and auto prefix **sass** files (it has some helper classes like margins, paddings etc.)
 * Create **javascript bundles** transpiled via **babel**.
 * **Lint javascript** files if you set lint option to true inside of gulp.config.js file.
 * Direct **copy** or **optimize then copy** images.
-* Copy **folders or files**.
-* **Include html** files inside of html files (**You don't have to use php or something else**).
-* **Export** files for production (**minify, uglify and optimize them quickly and simple!**).
-* Create a **zip file** of project (**without dist and node_modules folders ofcourse**)
-* Set different settings for **export** and **watch** mode to **improve development speed** (**Like don't optimizing images on watch mode but optimize them while export to production**)
+* Copy folders or files.
+* **Include html** files inside of html files (You don't have to use php or something else).
+* **Export** files for production (**minify, uglify** and **optimize** them quickly and simple!).
+* Create a **zip file** of project (without dist and node_modules folders ofcourse)
+* Set different settings for **export** and **watch** mode to **improve development speed** (Like don't optimizing images on **watch** mode but optimize them while **export** to production)
 
 ### How can I use it?
 
@@ -41,7 +41,7 @@ You can change the settings of boilerplate with  _gulp.config.js_ file.
 Key  | Info |  Description
 ----- | ------------------  |  -------
 paths | Type: `Object` |  Set files' paths
-paths.SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like ['./src/first.js', './src/second.js'])
+paths.SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like **['./src/first.js', './src/second.js']**)
 paths.STYLES_SRC | Type: `Glob`  |   Sass files' paths
 paths.IMAGES_SRC | Type: `Glob` |   Image files' paths
 paths.HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
