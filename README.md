@@ -135,7 +135,7 @@ watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch:
 ### Commands
 
 Write to terminal:
-`gulp "command name"`
+<br>`gulp "command name"`
 
 Command  | Description
 -------- | -----------
