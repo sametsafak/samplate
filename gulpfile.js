@@ -1,21 +1,21 @@
-var gulp = require('gulp');
-var userSettings = require('./gulpConfig.js');
+let gulp = require('gulp');
+let userSettings = require('./gulp.config.js');
 // Style packages
-var sass = require('gulp-sass'),
+let sass = require('gulp-sass'),
   autoprefixer = require('gulp-autoprefixer'),
   cleanCSS = require('gulp-clean-css');
 
 // Script packages
-var babel = require('gulp-babel'),
+let babel = require('gulp-babel'),
   eslint = require('gulp-eslint');
 
 // Image compression packages
-var imagemin = require('gulp-imagemin'),
+let imagemin = require('gulp-imagemin'),
   imageminPngquant = require('imagemin-pngquant'),
   imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
 // Common packages
-var concat = require('gulp-concat'),
+let concat = require('gulp-concat'),
   plumber = require('gulp-plumber'),
   sourcemaps = require('gulp-sourcemaps'),
   zip = require('gulp-zip'),
@@ -29,13 +29,42 @@ var concat = require('gulp-concat'),
 
 // let merge = require('merge-stream');
 
+let defaultSettings = {
+  paths: {
 
-var defaultSettings = {
-  fileInclude: true,
+    // Scripts paths
+    SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
+    STYLES_SRC: ['./src/assets/sass/**/*.scss'],
+    IMAGES_SRC: ['./src/assets/img/**/*.*'],
+
+    // Html paths
+    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
+    HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
+
+    // Dist paths
+    DIST_PATH: './dist/',
+    SCRIPTS_DIST: './dist/assets/js',
+    STYLES_DIST: './dist/assets/css',
+    IMAGES_DIST: './dist/assets/img',
+    HTMLS_DIST: './dist/'
+  },
+  fileIncludeActive: true,
   showNotifications: true,
   copytoDistPaths: [],
+  bundles: {
+    a: {
+      babel: true,
+      lint: true,
+      files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
+    },
+    b: {
+      babel: false,
+      lint: false,
+      files: './src/assets/js/b/**/*.js'
+    }
+  },
   watch: {
-    serve: false,
+    serve: true,
     uglifyScripts: false,
     minifyCss: false,
     optimizeImages: false,
@@ -60,10 +89,10 @@ var defaultSettings = {
   }
 };
 
-var settings = Object.assign(defaultSettings, userSettings);
-var path = settings.paths;
-var currentMode = 'watch'; // 'watch' or 'export'
-var errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
+let settings = Object.assign(defaultSettings, userSettings);
+let path = settings.paths;
+let currentMode = 'watch'; // 'watch' or 'export'
+let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
 
 
 let popNotification = function (type, message) {
@@ -91,7 +120,6 @@ let popNotification = function (type, message) {
     obj.sound = 'Pop';
   }
 
-
   if (settings.showNotifications) {
     notifier.notify({
       title: 'Samplate',
@@ -100,8 +128,6 @@ let popNotification = function (type, message) {
       sound: obj.sound,
       timeout: obj.timeout
     });
-  } else {
-    console.log(message);
   }
 };
 
@@ -126,14 +152,6 @@ let streamEndHandler = function (self, message, cb) {
   }
 };
 
-// webpack test
-gulp.task('webpack', () => {
-  return gulp.src('./src/assets/js/entry.js')
-    .pipe(webpack())
-    .pipe(gulp.dest('dist/'));
-});
-
-
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
 
@@ -146,7 +164,7 @@ gulp.task('styles:scss', function (done) {
     }))
     .pipe(sourcemaps.init())
     .pipe(sass())
-    .pipe(sass().on('error', sass.logError))
+    // .pipe(sass().on('error', sass.logError))
     .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
     .pipe(autoprefixer())
     .pipe(sourcemaps.write())
@@ -159,7 +177,7 @@ gulp.task('styles:scss', function (done) {
 });
 
 
-// bundle test
+// Bundle scripts
 gulp.task('scripts:bundle', function (done) {
 
   let self = this;
@@ -167,8 +185,6 @@ gulp.task('scripts:bundle', function (done) {
   let stream;
 
   self.errorHappened = false;
-
-  // let tasks = bundles.map(function (bundle) { // loops every bundle key inside of bundles object
   bundles.map(function (bundle) { // loops every bundle key inside of bundles object
 
     let sources = settings.bundles[bundle].files;
@@ -187,120 +203,17 @@ gulp.task('scripts:bundle', function (done) {
   });
 
   stream.on('end', function () {
-    // done();
     streamEndHandler(self, 'script:bundle task completed!', done);
   });
-
-  // process all remaining files in scriptsPath root into main.js and main.min.js files
-  /* var root = gulp.src(path.SCRIPTS_SRC)
-    .pipe(concat('main.js'))
-    .pipe(gulp.dest(path.SCRIPTS_DIST))
-    .pipe(uglify())
-    .pipe(rename('main.min.js'))
-    .pipe(gulp.dest(path.SCRIPTS_DIST));
-
-  return merge(tasks, root);*/
 });
-
-
-// bundle library script files in js/libs folder
-/* gulp.task('script:libs', (done) => {
-
-  const sources = [...settings.libScriptLoadFirst, ...LIB_path.SCRIPTS_SRC];
-  let self = this;
-
-  self.errorHappened = false;
-
-  var stream = gulp.src(sources)
-    .pipe(plumber(function (err) {
-      onError(err, this, self);
-    }))
-    .pipe(sourcemaps.init())
-    .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
-    .pipe(concat('libs.min.js'))
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
-    .pipe(gulp.dest(path.SCRIPTS_DIST));
-
-  stream.on('end', function () {
-    streamEndHandler(self, 'script:libs task completed!', done);
-  });
-});
-
-gulp.task('script:app', (done) => {
-  const sources = [...settings.appScriptLoadFirst, ...APP_path.SCRIPTS_SRC];
-  let self = this;
-
-  self.errorHappened = false;
-
-  var stream = gulp.src(sources)
-    .pipe(plumber(function (err) {
-      onError(err, this, self);
-    }))
-    .pipe(sourcemaps.init())
-    .pipe(babel())
-    .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
-    .pipe(concat('app.min.js'))
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
-    .pipe(gulp.dest(path.SCRIPTS_DIST));
-
-  stream.on('end', function () {
-    streamEndHandler(self, 'script:app task completed!', done);
-  });
-});*/
-
-/* gulp.task('eslint', function (done) {
-
-  let self = this;
-
-  self.errorHappened = false;
-
-  // ESLint ignores files with "node_modules" paths.
-  // So, it's best to have gulp ignore the directory as well.
-  // Also, Be sure to return the stream from the task;
-  // Otherwise, the task may end before the stream has finished.
-  let stream = gulp.src(path.SCRIPTS_SRC)
-    // eslint() attaches the lint output to the "eslint" property
-    // of the file object so it can be used by other modules.
-    .pipe(eslint())
-    .pipe(plumber(function (err) {
-      console.log('555555555555555555 erör');
-      onError(err, this, self);
-    }))
-    // eslint.format() outputs the lint results to the console.
-    // Alternatively use eslint.formatEach() (see Docs).
-    .pipe(eslint.format())
-    // To have the process exit with an error code (1) on
-    // lint error, return the stream and pipe to failAfterError last.
-    .pipe(eslint.failAfterError());
-
-  stream.on('error', function () {
-    console.log('444444444444444444444 erör');
-    // streamEndHandler(self, 'eslint task completed!', done);
-  });
-  stream.on('end', function () {
-    console.log('7444444444444444444 end');
-    streamEndHandler(self, 'eslint task completed!', done);
-  });
-  stream.on('unpipe', function () {
-    console.log('7444444444444444444 unpipe');
-    done();
-    // streamEndHandler(self, 'eslint task completed!', done);
-  });
-
-  // return stream;
-});*/
 
 gulp.task('eslint', function () {
 
   let self = this;
-
   let bundles = Object.keys(settings.bundles);
   let stream;
 
   self.errorHappened = false;
-
   bundles.map(function (bundle) {
     let sources = settings.bundles[bundle].files;
 
@@ -325,7 +238,6 @@ gulp.task('optimizeImages', (done) => {
   let self = this;
 
   self.errorHappened = false;
-
   let stream = gulp.src(path.IMAGES_SRC)
     .pipe(plumber(function (err) {
       onError(err, this, self);
@@ -359,7 +271,6 @@ gulp.task('optimizeImages', (done) => {
   stream.on('end', function () {
     streamEndHandler(self, 'optimizeImages task completed!', done);
   });
-
 });
 
 // File include for html files
@@ -370,13 +281,13 @@ gulp.task('fileinclude:html', function () {
     .src(path.HTMLS_SRC);
 
   if (settings.fileIncludeActive) {
-    stream.pipe(fileinclude(
-      {
-        prefix: '@@',
-        suffix: '',
-        basepath: '@file',
-        indent: true
-      }))
+
+    stream.pipe(fileinclude({
+      prefix: '@@',
+      suffix: '',
+      basepath: '@file',
+      indent: true
+    }))
       .pipe(plumber(function (err) {
         onError(err);
       }))
@@ -388,10 +299,10 @@ gulp.task('fileinclude:html', function () {
 
 // Copy images
 gulp.task('copy:images', (done) => {
+
   let self = this;
 
   self.errorHappened = false;
-
   let stream = gulp
     .src(path.IMAGES_SRC)
     .pipe(plumber(function (err) {
@@ -410,13 +321,12 @@ gulp.task('copy:givenpaths', (done) => {
   let self = this;
 
   self.errorHappened = false;
-
   let stream = gulp
     .src(settings.copytoDistPaths, { base: './src/' })
     .pipe(plumber(function (err) {
       onError(err);
     }))
-    // .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
     .pipe(gulp.dest(path.DIST_PATH));
 
   stream.on('end', function () {
@@ -435,11 +345,11 @@ gulp.task('imagesHandler', (cb) => {
 
 // Export project as zip
 gulp.task('exportzip', (done) => {
+
   let self = this;
 
   self.errorHappened = false;
-
-  let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**}'])
+  let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**,.history,.history/**}'])
     .pipe(plumber(function (err) {
       onError(err, this, self);
     }))
@@ -503,7 +413,7 @@ gulp.task('export', (cb) => {
   );
 });
 
-// Serve
+// Http server
 gulp.task('serve', () => {
   if (settings[currentMode].serve) {
     connect.server({
@@ -533,5 +443,4 @@ gulp.task('watch', () => {
   gulp.watch(path.STYLES_SRC, ['styles:scss']);
   gulp.watch(path.IMAGES_SRC, ['copy:images']);
   gulp.watch(path.HTMLS_ALL_SRC, ['fileinclude:html']);
-
 });
