@@ -53,8 +53,8 @@ let defaultSettings = {
   copytoDistPaths: [],
   bundles: {
     a: {
-      babel: true,
-      lint: true,
+      babel: false,
+      lint: false,
       files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
     },
     b: {

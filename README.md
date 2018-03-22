@@ -1,71 +1,134 @@
 # samplate
-Basic but powerful frontend boilerplate.
+Simple but powerful frontend boilerplate.
 
 ## Tell me more!
-This boilerplate can be configured with gulp.config.js file.
+This boilerplate can be [configured](#how-can-i-configure-it) via gulp.config.js file.
 
-You can see the process of tasks whether completed or not while working via native os notifications! // OSX is better of course :)
+You can see the process of tasks' via **native os notifications!**
 
-It has an http server and file includer! You don't have to use php or something else to include an html i.e. header.html
+This boiler plate has an **http server** and **file includer!** You **don't** have to use **php** or something else to include an **html file inside of another html file** like *header.html*
 
-### What can you do with this boilerplate?
+### What can I do with this boilerplate?
 
-* Compile and auto prefix sass files (**it has some helper classes like margins, paddings etc.**)
-* Create javascript bundles transpiled via babel.
-* Lint javascript files if you set lint option to true inside of gulp.config.js file.
-* Direct copy or optimize and copy images.
-* Copy folders or files.
-* Include html files inside of html files (**You don't have to use php or something else**).
-* Export files for production.
-* Create a zip file of project (**without dist and node_modules folder**)
-* Set specific setting for export to production or watch mode to improve working performance white in watch mode.
+* Compile and auto prefix **sass** files (**it has some helper classes like margins, paddings etc.**)
+* Create **javascript bundles** transpiled via **babel**.
+* **Lint javascript** files if you set lint option to true inside of gulp.config.js file.
+* Direct **copy** or **optimize then copy** images.
+* Copy **folders or files**.
+* **Include html** files inside of html files (**You don't have to use php or something else**).
+* **Export** files for production (**minify, uglify and optimize them quickly and simple!**).
+* Create a **zip file** of project (**without dist and node_modules folders ofcourse**)
+* Set different settings for **export** and **watch** mode to **improve development speed** (**Like don't optimizing images on watch mode but optimize them while export to production**)
 
-### How to use
+### How can I use it?
 
-First install the dependencies via npm. Write to terminal:
-`npm install`
+Firstly, download or clone the project and install the dependencies via npm. Write to terminal:
+<br>`npm install`
 
-If it isn't work, you have to install [nodejs](https://nodejs.org/en/) probably :)
+Edit _gulp.config.js_ file as you want then write to terminal
+<br>`gulp watch`.
 
-Basically, just set the gulp.config.js file as you want then write to terminal `gulp watch`.
+To export project for production, just write to terminal
+<br>`gulp export`
 
-To export for production, just write `gulp export`
 
-### Configurations
+[Wow. Show me all the commands!](#commands)
 
-You can set up the boilerplate with  _gulp.config.js_ file.
+### How can I configure it?
+
+You can change the settings of boilerplate with  _gulp.config.js_ file.
 
 Key  | Info |  Description
 -------- | -----------  |  -------
-paths | Type: `Boolean` Default: `true`  |   Set files' paths
-paths.SCRIPTS_SRC | Type: `Boolean` Default: `true`  |   Script files' paths
-paths.STYLES_SRC | Type: `Boolean` Default: `true`  |   Sass files' paths
-paths.IMAGES_SRC | Type: `Boolean` Default: `true`  |   Image files' paths
-paths.HTMLS_SRC | Type: `Boolean` Default: `true`  |   Main html files' paths (Without partials like header.html etc)
-paths.HTMLS_ALL_SRC | Type: `Boolean` Default: `true`  |   Gives all html files' paths to gulp for watch task
-paths.DIST_PATH | Type: `Boolean` Default: `true`  |   Files processed and exported into this folder
-paths.SCRIPTS_DIST | Type: `Boolean` Default: `true`  |   Script files processed and exported into this folder
-paths.STYLES_DIST | Type: `Boolean` Default: `true`  |   Sass files processed and exported into this folder
-paths.IMAGES_DIST | Type: `Boolean` Default: `true`  |   Image files processed and exported into this folder
-paths.HTMLS_DIST | Type: `Boolean` Default: `true`  |   Html files processed and exported into this folder
-fileIncludeActive  | Type: `Boolean` Default: `true`  |   Html file include enabled or disabled
-showNotifications  | Type: `Boolean` Default: `true`  |   Show native notifications for all tasks
-copytoDistPaths  | Type: `Boolean` Default: `true`  |   Files or folders that should directly copy to dist folder
-bundles  | Type: `Object` Default: `true`  |   Setting object for javascript bundles
-bundles."bundle name".babel  | Type: `Boolean` Default: `true`  |   Transpile files with babel or not
-bundles."bundle name".lint  | Type: `Boolean` Default: `true`  |   Lint files via eslint or not
-bundles."bundle name".files  | Type: `Boolean` Default: `true`  |   Files/Folders list
-watch / export  | Type: `Object` Default: `true`  |   Watch or Export settings object
-watch / export .serve | Type: `Boolean` Default: `true`  |   Http server enabled or disabled
-watch / export .uglifyScripts | Type: `Boolean` Default: `true`  |   Uglify JS files enabled or disabled
-watch / export .minifyCss | Type: `Boolean` Default: `true`  |   Minify Sass files enabled or disabled
-watch / export .optimizeImages | Type: `Boolean` Default: `true`  |   Optimize images enabled or disabled
-watch / export .refreshPageAfter | Type: `Object` Default: `true`  |   Refresh page after change setting object
-watch / export .refreshPageAfter.fileInclude | Type: `Boolean` Default: `true`  |   Refresh page after Html change
-watch / export .refreshPageAfter.style | Type: `Boolean` Default: `true`  |   Refresh page after Sass change
-watch / export .refreshPageAfter.script | Type: `Boolean` Default: `true`  |   Refresh page after Js change
-watch / export .refreshPageAfter.image | Type: `Boolean` Default: `true`  |   Refresh page after Image change
+paths | Type: `Object` |  Set files' paths
+paths.SCRIPTS_SRC | Type: `Glob` <br> Example: './src/*.js' |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like ['./src/first.js', './src/second.js'])
+paths.STYLES_SRC | Type: `Glob`  |   Sass files' paths
+paths.IMAGES_SRC | Type: `Glob` |   Image files' paths
+paths.HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
+paths.HTMLS_ALL_SRC | Type: `Glob`  |   Gives all html files' paths to gulp for watch task
+paths.DIST_PATH | Type: `Glob`  |   Files processed and exported into this folder
+paths.SCRIPTS_DIST | Type: `Glob` |   Script files processed and exported into this folder
+paths.STYLES_DIST | Type: `Glob`  |   Sass files processed and exported into this folder
+paths.IMAGES_DIST | Type: `Glob`  |   Image files processed and exported into this folder
+paths.HTMLS_DIST | Type: `Glob`  |   Html files processed and exported into this folder
+fileIncludeActive  | Type: `Boolean` <br>Default: `true`  |   Html file include enabled or disabled
+showNotifications  | Type: `Boolean` <br>Default: `true`  |   Show native notifications for some tasks
+copytoDistPaths  | Type: `Glob`  |   Files or folders that should directly copy to dist folder
+bundles  | Type: `Object`  |   Setting object for javascript bundles
+bundles."bundle name".babel  | Type: `Boolean` <br>Default: `false`  |   Transpile files with babel or not
+bundles."bundle name".lint  | Type: `Boolean` <br>Default: `false`  |   Lint files via eslint or not
+bundles."bundle name".files  | Type: `Glob` |  Files/Folders list
+watch/export  | Type: `Object` <br>Default: `true`  |   Watch or Export settings object
+watch/export.**serve** | Type: `Boolean` <br>Default: `true`  |   Http server enabled or disabled
+watch/export.**uglifyScripts** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`  |   Uglify JS files enabled or disabled
+watch/export.**minifyCss** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Minify Sass files enabled or disabled
+watch/export.**optimizeImages** | Type: <br>Default for watch `true`, Default for export `false`   |   Optimize images enabled or disabled
+watch/export.**refreshPageAfter** | Type: `Object` |   Refresh page after change setting object
+watch/export.refreshPageAfter.**fileInclude** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Html change
+watch/export.refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Sass change
+watch/export.refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Js change
+watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Image change
 
+#Example Settings Object
+
+ `module.exports = {
+   paths: {
+    // Scripts paths
+    SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
+    STYLES_SRC: ['./src/assets/sass/**/*.scss'],
+    IMAGES_SRC: ['./src/assets/img/**/*.*'],
+
+    // Html paths
+    HTMLS_SRC: ['./src/*.html'], // Main html files' sources (Without partials like header.html etc)
+    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all html files' paths to gulp for watch
+
+    // Dist paths
+    DIST_PATH: './dist/',
+    SCRIPTS_DIST: './dist/assets/js',
+    STYLES_DIST: './dist/assets/css',
+    IMAGES_DIST: './dist/assets/img',
+    HTMLS_DIST: './dist/'
+  },
+  fileIncludeActive: true,
+  showNotifications: true,
+  copytoDistPaths: ['./src/copyme/**/*'],
+  bundles: {
+    a: {
+      babel: true,
+      lint: true,
+      files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
+    },
+    b: {
+      babel: false,
+      lint: false,
+      files: './src/assets/js/b/**/*.js'
+    }
+  },
+  watch: {
+    serve: true,
+    uglifyScripts: false,
+    minifyCss: false,
+    optimizeImages: false,
+    refreshPageAfter: {
+      fileInclude: true,
+      style: true,
+      script: true,
+      image: true
+    }
+  },
+  export: {
+    serve: false,
+    uglifyScripts: true,
+    minifyCss: true,
+    optimizeImages: true,
+    refreshPageAfter: {
+      fileInclude: false,
+      style: false,
+      script: false,
+      image: false
+    }
+  }
+};`
 
 ### Commands
 
