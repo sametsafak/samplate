@@ -25,10 +25,10 @@ This boiler plate has an **http server** and **file includer!** You don't have t
 Firstly, download or clone the project and install the dependencies via npm. Write to terminal:
 <br>`npm install`
 
-Edit _gulp.config.js_ file as you want then write to terminal
+Edit _gulp.config.js_ file as you want then write to terminal:
 <br>`gulp watch`.
 
-To export project for production, just write to terminal
+To export project for production, just write to terminal:
 <br>`gulp export`
 
 
@@ -134,7 +134,8 @@ watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch:
 
 ### Commands
 
-Write to terminal `gulp "command name"`
+Write to terminal:
+`gulp "command name"`
 
 Command  | Description
 -------- | -----------
