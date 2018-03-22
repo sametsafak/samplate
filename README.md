@@ -41,7 +41,7 @@ You can change the settings of boilerplate with  _gulp.config.js_ file.
 Key  | Info |  Description
 ----- | ------------------  |  -------
 paths | Type: `Object` |  Set files' paths
-paths.SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like ['./src/first.js', './src/second.js'])
+paths.SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like ['./src/first.js', './src/second.js'])
 paths.STYLES_SRC | Type: `Glob`  |   Sass files' paths
 paths.IMAGES_SRC | Type: `Glob` |   Image files' paths
 paths.HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
