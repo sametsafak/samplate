@@ -38,8 +38,8 @@ let defaultSettings = {
     IMAGES_SRC: ['./src/assets/img/**/*.*'],
 
     // Html paths
-    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
     HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
+    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
 
     // Dist paths
     DIST_PATH: './dist/',
@@ -175,7 +175,6 @@ gulp.task('styles:scss', function (done) {
     streamEndHandler(self, 'styles:sass task completed!', done);
   });
 });
-
 
 // Bundle scripts
 gulp.task('scripts:bundle', function (done) {

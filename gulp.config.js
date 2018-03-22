@@ -1,14 +1,13 @@
 module.exports = {
   paths: {
-
     // Scripts paths
     SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
     STYLES_SRC: ['./src/assets/sass/**/*.scss'],
     IMAGES_SRC: ['./src/assets/img/**/*.*'],
 
     // Html paths
-    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
-    HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
+    HTMLS_SRC: ['./src/*.html'], // Main html files' sources (Without partials like header.html etc)
+    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all html files' paths to gulp for watch
 
     // Dist paths
     DIST_PATH: './dist/',
