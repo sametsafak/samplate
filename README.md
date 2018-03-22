@@ -69,7 +69,7 @@ watch/export.refreshPageAfter.**style** | Type: `Boolean` <br>Default for watch 
 watch/export.refreshPageAfter.**script** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Js change
 watch/export.refreshPageAfter.**image** | Type: `Boolean` <br>Default for watch `true`, Default for export `false`   |   Refresh page after Image change
 
-#Example Settings Object
+# Example Settings Object
 
  ```javascript
  module.exports = {
