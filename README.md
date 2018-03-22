@@ -35,36 +35,36 @@ To export for production, just write `gulp export`
 
 You can set up the boilerplate with  _gulp.config.js_ file.
 
-Key  | Description
--------- | -----------
-paths | Type: `Boolean` Default: `true` <br> Set files' paths
-paths.SCRIPTS_SRC | Type: `Boolean` Default: `true` <br> Script files' paths
-paths.STYLES_SRC | Type: `Boolean` Default: `true` <br> Sass files' paths
-paths.IMAGES_SRC | Type: `Boolean` Default: `true` <br> Image files' paths
-paths.HTMLS_SRC | Type: `Boolean` Default: `true` <br> Main html files' paths (Without partials like header.html etc)
-paths.HTMLS_ALL_SRC | Type: `Boolean` Default: `true` <br> Gives all html files' paths to gulp for watch task
-paths.DIST_PATH | Type: `Boolean` Default: `true` <br> Files processed and exported into this folder
-paths.SCRIPTS_DIST | Type: `Boolean` Default: `true` <br> Script files processed and exported into this folder
-paths.STYLES_DIST | Type: `Boolean` Default: `true` <br> Sass files processed and exported into this folder
-paths.IMAGES_DIST | Type: `Boolean` Default: `true` <br> Image files processed and exported into this folder
-paths.HTMLS_DIST | Type: `Boolean` Default: `true` <br> Html files processed and exported into this folder
-fileIncludeActive  | Type: `Boolean` Default: `true` <br> Html file include enabled or disabled
-showNotifications  | Type: `Boolean` Default: `true` <br> Show native notifications for all tasks
-copytoDistPaths  | Type: `Boolean` Default: `true` <br> Files or folders that should directly copy to dist folder
-bundles  | Type: `Object` Default: `true` <br> Setting object for javascript bundles
-bundles."bundle name".babel  | Type: `Boolean` Default: `true` <br> Transpile files with babel or not
-bundles."bundle name".lint  | Type: `Boolean` Default: `true` <br> Lint files via eslint or not
-bundles."bundle name".files  | Type: `Boolean` Default: `true` <br> Files/Folders list
-watch / export  | Type: `Object` Default: `true` <br> Watch or Export settings object
-watch / export .serve | Type: `Boolean` Default: `true` <br> Http server enabled or disabled
-watch / export .uglifyScripts | Type: `Boolean` Default: `true` <br> Uglify JS files enabled or disabled
-watch / export .minifyCss | Type: `Boolean` Default: `true` <br> Minify Sass files enabled or disabled
-watch / export .optimizeImages | Type: `Boolean` Default: `true` <br> Optimize images enabled or disabled
-watch / export .refreshPageAfter | Type: `Object` Default: `true` <br> Refresh page after change setting object
-watch / export .refreshPageAfter.fileInclude | Type: `Boolean` Default: `true` <br> Refresh page after Html change
-watch / export .refreshPageAfter.style | Type: `Boolean` Default: `true` <br> Refresh page after Sass change
-watch / export .refreshPageAfter.script | Type: `Boolean` Default: `true` <br> Refresh page after Js change
-watch / export .refreshPageAfter.image | Type: `Boolean` Default: `true` <br> Refresh page after Image change
+Key  | Info |  Description
+-------- | -----------  |  -------
+paths | Type: `Boolean` Default: `true`  |   Set files' paths
+paths.SCRIPTS_SRC | Type: `Boolean` Default: `true`  |   Script files' paths
+paths.STYLES_SRC | Type: `Boolean` Default: `true`  |   Sass files' paths
+paths.IMAGES_SRC | Type: `Boolean` Default: `true`  |   Image files' paths
+paths.HTMLS_SRC | Type: `Boolean` Default: `true`  |   Main html files' paths (Without partials like header.html etc)
+paths.HTMLS_ALL_SRC | Type: `Boolean` Default: `true`  |   Gives all html files' paths to gulp for watch task
+paths.DIST_PATH | Type: `Boolean` Default: `true`  |   Files processed and exported into this folder
+paths.SCRIPTS_DIST | Type: `Boolean` Default: `true`  |   Script files processed and exported into this folder
+paths.STYLES_DIST | Type: `Boolean` Default: `true`  |   Sass files processed and exported into this folder
+paths.IMAGES_DIST | Type: `Boolean` Default: `true`  |   Image files processed and exported into this folder
+paths.HTMLS_DIST | Type: `Boolean` Default: `true`  |   Html files processed and exported into this folder
+fileIncludeActive  | Type: `Boolean` Default: `true`  |   Html file include enabled or disabled
+showNotifications  | Type: `Boolean` Default: `true`  |   Show native notifications for all tasks
+copytoDistPaths  | Type: `Boolean` Default: `true`  |   Files or folders that should directly copy to dist folder
+bundles  | Type: `Object` Default: `true`  |   Setting object for javascript bundles
+bundles."bundle name".babel  | Type: `Boolean` Default: `true`  |   Transpile files with babel or not
+bundles."bundle name".lint  | Type: `Boolean` Default: `true`  |   Lint files via eslint or not
+bundles."bundle name".files  | Type: `Boolean` Default: `true`  |   Files/Folders list
+watch / export  | Type: `Object` Default: `true`  |   Watch or Export settings object
+watch / export .serve | Type: `Boolean` Default: `true`  |   Http server enabled or disabled
+watch / export .uglifyScripts | Type: `Boolean` Default: `true`  |   Uglify JS files enabled or disabled
+watch / export .minifyCss | Type: `Boolean` Default: `true`  |   Minify Sass files enabled or disabled
+watch / export .optimizeImages | Type: `Boolean` Default: `true`  |   Optimize images enabled or disabled
+watch / export .refreshPageAfter | Type: `Object` Default: `true`  |   Refresh page after change setting object
+watch / export .refreshPageAfter.fileInclude | Type: `Boolean` Default: `true`  |   Refresh page after Html change
+watch / export .refreshPageAfter.style | Type: `Boolean` Default: `true`  |   Refresh page after Sass change
+watch / export .refreshPageAfter.script | Type: `Boolean` Default: `true`  |   Refresh page after Js change
+watch / export .refreshPageAfter.image | Type: `Boolean` Default: `true`  |   Refresh page after Image change
 
 
 ### Commands
