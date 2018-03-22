@@ -150,4 +150,4 @@ copy:givenpaths | Copy paths to dist folder.
 exportzip | Exports project as zip file.
 clean | Clean dist folder.
 default |  Or just write __gulp__ to the terminal. It makes same tasks of watch mode except watching files.
-export | Export project for **production.**.
+export | Export project for **production.**
