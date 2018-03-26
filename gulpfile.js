@@ -301,10 +301,14 @@ gulp.task('optimizeImages', (done) => {
 });
 
 // File include for html files
-gulp.task('fileinclude:html', function () {
+gulp.task('fileinclude:html', function (cb) {
+
+  if (!settings.fileIncludeActive) {
+    cb();
+    return;
+  }
 
   let stream;
-
 
   console.log(path);
 
@@ -442,12 +446,15 @@ gulp.task('export', (cb) => {
 });
 
 // Http server
-gulp.task('serve', () => {
+gulp.task('serve', (cb) => {
   if (settings[currentMode].serve) {
     connect.server({
       root: 'dist',
       livereload: true
     });
+  } else {
+    cb();
+    return;
   }
 });
 
