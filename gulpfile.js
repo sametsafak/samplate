@@ -194,10 +194,9 @@ gulp.task('styles:scss', function (done) {
     }))
     .pipe(sourcemaps.init())
     .pipe(sass())
-    // .pipe(sass().on('error', sass.logError))
     .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
     .pipe(autoprefixer())
-    .pipe(sourcemaps.write())
+    .pipe(sourcemaps.write('./'))
     .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()))
     .pipe(gulp.dest(path.STYLES_DIST));
 
@@ -263,7 +262,7 @@ gulp.task('eslint', function () {
 
 // Image optimization
 gulp.task('optimizeImages', (done) => {
-  console.log('Image optimization started! It will take a few minutes.');
+  console.log('Image optimization started! Please wait.');
   let self = this;
 
   self.errorHappened = false;
@@ -403,7 +402,7 @@ gulp.task('clean', () => {
     .pipe(plumber(function (err) {
       onError(err);
     }))
-    .pipe(clean());
+    .pipe(clean({ force: true }));
 
 });
 
