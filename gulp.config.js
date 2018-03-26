@@ -1,4 +1,7 @@
 module.exports = {
+  fileIncludeActive: true,
+  showNotifications: true,
+  copytoDistPaths: ['./src/copyme/**/*'],
   paths: {
     // Scripts paths
     SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
@@ -16,9 +19,6 @@ module.exports = {
     IMAGES_DIST: './dist/assets/img',
     HTMLS_DIST: './dist/'
   },
-  fileIncludeActive: true,
-  showNotifications: true,
-  copytoDistPaths: ['./src/copyme/**/*'],
   bundles: {
     a: {
       babel: true,

@@ -29,158 +29,164 @@ let concat = require('gulp-concat'),
 
 // let merge = require('merge-stream');
 
-let helpers = {
-  isObject: function (item) {
-    return item && typeof item === 'object' && !Array.isArray(item);
-  },
-  mergeDeep: function (target, ...sources) {
-    if (!sources.length) {
-      return target;
-    }
-    const source = sources.shift();
 
-    if (helpers.isObject(target) && helpers.isObject(source)) {
-      for (const key in source) {
-        if (helpers.isObject(source[key])) {
-          if (!target[key]) {
-            Object.assign(target, {
-              [key]: {}
-            });
-          }
-          helpers.mergeDeep(target[key], source[key]);
-        } else {
-          Object.assign(target, {
-            [key]: source[key]
-          });
-        }
-      }
-    }
-    return helpers.mergeDeep(target, ...sources);
-  }
-};
-
-let defaultSettings = {
-  paths: {
-
-    // Scripts paths
-    SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
-    STYLES_SRC: ['./src/assets/sass/**/*.scss'],
-    IMAGES_SRC: ['./src/assets/img/**/*.*'],
-
-    // Html paths
-    HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
-    HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
-
-    // Dist paths
-    DIST_PATH: './dist/',
-    SCRIPTS_DIST: './dist/assets/js',
-    STYLES_DIST: './dist/assets/css',
-    IMAGES_DIST: './dist/assets/img',
-    HTMLS_DIST: './dist/'
-  },
-  fileIncludeActive: true,
-  showNotifications: true,
-  copytoDistPaths: [],
-  bundles: {
-    a: {
-      babel: false,
-      lint: false,
-      files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
-    },
-    b: {
-      babel: false,
-      lint: false,
-      files: './src/assets/js/b/**/*.js'
-    }
-  },
-  watch: {
-    serve: true,
-    uglifyScripts: false,
-    minifyCss: false,
-    optimizeImages: false,
-    refreshPageAfter: {
-      fileInclude: true,
-      style: true,
-      script: true,
-      image: true
-    }
-  },
-  export: {
-    serve: false,
-    uglifyScripts: true,
-    minifyCss: true,
-    optimizeImages: true,
-    refreshPageAfter: {
-      fileInclude: false,
-      style: false,
-      script: false,
-      image: false
-    }
-  }
-};
-
-let settings = helpers.mergeDeep(defaultSettings, userSettings);
-let path = settings.paths;
-let currentMode = 'watch'; // 'watch' or 'export'
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
 
 
-let popNotification = function (type, message) {
-  let obj = {};
+let APP = (function () {
 
-  switch (type) {
-  case 'error':
-    obj.title = 'Error';
-    obj.timeout = 4;
-    obj.sound = 'Morse';
-    break;
-  case 'warning':
-    obj.title = 'Warning';
-    obj.timeout = 4;
-    obj.sound = 'Purr';
-    break;
-  case 'success':
-    obj.title = 'Success';
-    obj.timeout = 2;
-    obj.sound = 'Pop';
-    break;
-  default:
-    obj.title = 'Samplate';
-    obj.timeout = 4;
-    obj.sound = 'Pop';
-  }
+  return {
+    isObject: function (item) {
+      return item && typeof item === 'object' && !Array.isArray(item);
+    },
+    mergeDeep: function (target, ...sources) {
+      if (!sources.length) {
+        return target;
+      }
+      const source = sources.shift();
 
-  if (settings.showNotifications) {
-    notifier.notify({
-      title: 'Samplate',
-      subtitle: obj.title,
-      message: message,
-      sound: obj.sound,
-      timeout: obj.timeout
-    });
-  }
-};
+      if (APP.isObject(target) && APP.isObject(source)) {
+        for (const key in source) {
+          if (APP.isObject(source[key])) {
+            if (!target[key]) {
+              Object.assign(target, {
+                [key]: {}
+              });
+            }
+            APP.mergeDeep(target[key], source[key]);
+          } else {
+            Object.assign(target, {
+              [key]: source[key]
+            });
+          }
+        }
+      }
+      return APP.mergeDeep(target, ...sources);
+    },
+    currentMode: 'watch',
+    defaultSettings: {
+      fileIncludeActive: true,
+      showNotifications: true,
+      copytoDistPaths: [],
+      paths: {
 
-let onError = function (error, streamsThis, tasksThis) {
-  errorAtFirstStart = true;
-  console.log(error);
-  popNotification('error', error.message);
-  if (streamsThis) {
-    tasksThis.errorHappened = true;
-  }
-  if (tasksThis) {
-    streamsThis.emit('end');
-  }
-};
+        // Scripts paths
+        SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
+        STYLES_SRC: ['./src/assets/sass/**/*.scss'],
+        IMAGES_SRC: ['./src/assets/img/**/*.*'],
 
-let streamEndHandler = function (self, message, cb) {
-  if (!self.errorHappened) {
-    popNotification('success', message);
-  }
-  if (cb) {
-    cb();
-  }
-};
+        // Html paths
+        HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
+        HTMLS_ALL_SRC: ['./src/**/*.html'], // Gives all htmls for gulp watch
+
+        // Dist paths
+        DIST_PATH: './dist/',
+        SCRIPTS_DIST: './dist/assets/js',
+        STYLES_DIST: './dist/assets/css',
+        IMAGES_DIST: './dist/assets/img',
+        HTMLS_DIST: './dist/'
+      },
+      bundles: {
+        a: {
+          babel: false,
+          lint: false,
+          files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
+        },
+        b: {
+          babel: false,
+          lint: false,
+          files: './src/assets/js/b/**/*.js'
+        }
+      },
+      watch: {
+        serve: true,
+        uglifyScripts: false,
+        minifyCss: false,
+        optimizeImages: false,
+        refreshPageAfter: {
+          fileInclude: true,
+          style: true,
+          script: true,
+          image: true
+        }
+      },
+      export: {
+        serve: false,
+        uglifyScripts: true,
+        minifyCss: true,
+        optimizeImages: true,
+        refreshPageAfter: {
+          fileInclude: false,
+          style: false,
+          script: false,
+          image: false
+        }
+      }
+    },
+    settings: null,
+    paths: null,
+    onError: function (error, streamsThis, tasksThis) {
+      errorAtFirstStart = true;
+      console.log(error);
+      APP.popNotification('error', error.message);
+      if (streamsThis) {
+        tasksThis.errorHappened = true;
+      }
+      if (tasksThis) {
+        streamsThis.emit('end');
+      }
+    },
+    popNotification: function (type, message) {
+      let obj = {};
+
+      switch (type) {
+      case 'error':
+        obj.title = 'Error';
+        obj.timeout = 4;
+        obj.sound = 'Morse';
+        break;
+      case 'warning':
+        obj.title = 'Warning';
+        obj.timeout = 4;
+        obj.sound = 'Purr';
+        break;
+      case 'success':
+        obj.title = 'Success';
+        obj.timeout = 2;
+        obj.sound = 'Pop';
+        break;
+      default:
+        obj.title = 'Samplate';
+        obj.timeout = 4;
+        obj.sound = 'Pop';
+      }
+
+      if (APP.settings.showNotifications) {
+        notifier.notify({
+          title: 'Samplate',
+          subtitle: obj.title,
+          message: message,
+          sound: obj.sound,
+          timeout: obj.timeout
+        });
+      }
+    },
+    streamEndHandler: function (self, message, cb) {
+      if (!self.errorHappened) {
+        APP.popNotification('success', message);
+      }
+      if (cb) {
+        cb();
+      }
+    },
+    init: () => {
+      APP.settings = APP.mergeDeep(APP.defaultSettings, userSettings);
+      APP.paths = APP.settings.paths;
+    }
+  };
+}());
+
+APP.init();
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
@@ -188,20 +194,20 @@ gulp.task('styles:scss', function (done) {
   let self = this;
 
   self.errorHappened = false;
-  let stream = gulp.src(path.STYLES_SRC)
+  let stream = gulp.src(APP.paths.STYLES_SRC)
     .pipe(plumber(function (err) {
-      onError(err, this, self);
+      APP.onError(err, this, self);
     }))
     .pipe(sourcemaps.init())
     .pipe(sass())
-    .pipe(gulpif(settings[currentMode].minifyCss, cleanCSS()))
+    .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
     .pipe(autoprefixer())
     .pipe(sourcemaps.write('./'))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.style, connect.reload()))
-    .pipe(gulp.dest(path.STYLES_DIST));
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.style, connect.reload()))
+    .pipe(gulp.dest(APP.paths.STYLES_DIST));
 
   stream.on('end', function () {
-    streamEndHandler(self, 'styles:sass task completed!', done);
+    APP.streamEndHandler(self, 'styles:sass task completed!', done);
   });
 });
 
@@ -209,51 +215,51 @@ gulp.task('styles:scss', function (done) {
 gulp.task('scripts:bundle', function (done) {
 
   let self = this;
-  let bundles = Object.keys(settings.bundles);
+  let bundles = Object.keys(APP.settings.bundles);
   let stream;
 
   self.errorHappened = false;
   bundles.map(function (bundle) { // loops every bundle key inside of bundles object
 
-    let sources = settings.bundles[bundle].files;
+    let sources = APP.settings.bundles[bundle].files;
 
-    stream = gulp.src(sources) // value of bundle key in settings object
+    stream = gulp.src(sources) // value of bundle key in APP.settings object
       .pipe(plumber(function (err) {
-        onError(err, this, self);
+        APP.onError(err, this, self);
       }))
       .pipe(sourcemaps.init())
-      .pipe(gulpif(settings.bundles[bundle].babel, babel()))
-      .pipe(gulpif(settings[currentMode].uglifyScripts, uglify()))
+      .pipe(gulpif(APP.settings.bundles[bundle].babel, babel()))
+      .pipe(gulpif(APP.settings[APP.currentMode].uglifyScripts, uglify()))
       .pipe(concat(bundle + '.js'))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulpif(settings[currentMode].refreshPageAfter.script, connect.reload()))
-      .pipe(gulp.dest(path.SCRIPTS_DIST));
+      .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.script, connect.reload()))
+      .pipe(gulp.dest(APP.paths.SCRIPTS_DIST));
   });
 
   stream.on('end', function () {
-    streamEndHandler(self, 'script:bundle task completed!', done);
+    APP.streamEndHandler(self, 'script:bundle task completed!', done);
   });
 });
 
 gulp.task('eslint', function () {
 
   let self = this;
-  let bundles = Object.keys(settings.bundles);
+  let bundles = Object.keys(APP.settings.bundles);
   let stream;
 
   self.errorHappened = false;
   bundles.map(function (bundle) {
-    let sources = settings.bundles[bundle].files;
+    let sources = APP.settings.bundles[bundle].files;
 
-    stream = gulp.src(sources) // value of bundle key in settings object
-      .pipe(gulpif(settings.bundles[bundle].lint, eslint()))
+    stream = gulp.src(sources) // value of bundle key in APP.settings object
+      .pipe(gulpif(APP.settings.bundles[bundle].lint, eslint()))
       .pipe(plumber(function (err) {
-        onError(err, this, self);
+        APP.onError(err, this, self);
       }))
-      .pipe(gulpif(settings.bundles[bundle].lint, eslint.format()))
-      .pipe(gulpif(settings.bundles[bundle].lint, eslint.failAfterError()))
+      .pipe(gulpif(APP.settings.bundles[bundle].lint, eslint.format()))
+      .pipe(gulpif(APP.settings.bundles[bundle].lint, eslint.failAfterError()))
       .on('end', function () {
-        streamEndHandler(self, 'eslint task completed!');
+        APP.streamEndHandler(self, 'eslint task completed!');
       });
   });
 
@@ -266,9 +272,9 @@ gulp.task('optimizeImages', (done) => {
   let self = this;
 
   self.errorHappened = false;
-  let stream = gulp.src(path.IMAGES_SRC)
+  let stream = gulp.src(APP.paths.IMAGES_SRC)
     .pipe(plumber(function (err) {
-      onError(err, this, self);
+      APP.onError(err, this, self);
     }))
     .pipe(imagemin([
       imagemin.gifsicle({
@@ -291,40 +297,38 @@ gulp.task('optimizeImages', (done) => {
       imageminPngquant(),
       imageminJpegRecompress()
     ]))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
-    .pipe(gulp.dest(path.IMAGES_DIST));
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(APP.paths.IMAGES_DIST));
 
   stream.on('end', function () {
-    streamEndHandler(self, 'optimizeImages task completed!', done);
+    APP.streamEndHandler(self, 'optimizeImages task completed!', done);
   });
 });
 
 // File include for html files
 gulp.task('fileinclude:html', function (cb) {
 
-  if (!settings.fileIncludeActive) {
+  if (!APP.settings.fileIncludeActive) {
     cb();
-    return;
+    return false;
   }
 
   let stream;
 
-  console.log(path);
-
   stream = gulp
     // .src("./src/html/[^_]*.html")
-    .src(path.HTMLS_SRC)
+    .src(APP.paths.HTMLS_SRC)
     .pipe(plumber(function (err) {
-      onError(err);
+      APP.onError(err);
     }))
-    .pipe(gulpif(settings.fileIncludeActive, fileinclude({
+    .pipe(gulpif(APP.settings.fileIncludeActive, fileinclude({
       prefix: '@@',
       suffix: '',
       basepath: '@file',
       indent: true
     })))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()))
-    .pipe(gulp.dest(path.HTMLS_DIST));
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.fileInclude, connect.reload()))
+    .pipe(gulp.dest(APP.paths.HTMLS_DIST));
   return stream;
 });
 
@@ -335,15 +339,15 @@ gulp.task('copy:images', (done) => {
 
   self.errorHappened = false;
   let stream = gulp
-    .src(path.IMAGES_SRC)
+    .src(APP.paths.IMAGES_SRC)
     .pipe(plumber(function (err) {
-      onError(err);
+      APP.onError(err);
     }))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
-    .pipe(gulp.dest(path.IMAGES_DIST));
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(APP.paths.IMAGES_DIST));
 
   stream.on('end', function () {
-    streamEndHandler(self, 'copy:images task completed!', done);
+    APP.streamEndHandler(self, 'copy:images task completed!', done);
   });
 });
 
@@ -353,23 +357,23 @@ gulp.task('copy:givenpaths', (done) => {
 
   self.errorHappened = false;
   let stream = gulp
-    .src(settings.copytoDistPaths, {
+    .src(APP.settings.copytoDistPaths, {
       base: './src/'
     })
     .pipe(plumber(function (err) {
-      onError(err);
+      APP.onError(err);
     }))
-    .pipe(gulpif(settings[currentMode].refreshPageAfter.image, connect.reload()))
-    .pipe(gulp.dest(path.DIST_PATH));
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.image, connect.reload()))
+    .pipe(gulp.dest(APP.paths.DIST_PATH));
 
   stream.on('end', function () {
-    streamEndHandler(self, 'copy:givenpaths task completed!', done);
+    APP.streamEndHandler(self, 'copy:givenpaths task completed!', done);
   });
 });
 
 // Check if images should copy directly to dist or compress before copy
 gulp.task('imagesHandler', (cb) => {
-  if (settings[currentMode].optimizeImages) {
+  if (APP.settings[APP.currentMode].optimizeImages) {
     gulpSequence('optimizeImages', cb);
   } else {
     gulpSequence('copy:images', cb);
@@ -384,23 +388,24 @@ gulp.task('exportzip', (done) => {
   self.errorHappened = false;
   let stream = gulp.src(['./**/*', '!./{node_modules,node_modules/**,dist,dist/**,.history,.history/**}'])
     .pipe(plumber(function (err) {
-      onError(err, this, self);
+      APP.onError(err, this, self);
     }))
     .pipe(zip('website.zip'))
     .pipe(gulp.dest('./'));
 
   stream.on('end', function () {
-    streamEndHandler(self, 'exportzip task completed!', done);
+    APP.streamEndHandler(self, 'exportzip task completed!', done);
   });
 });
 
 // Delete dist folder
 gulp.task('clean', () => {
-  return gulp.src(path.DIST_PATH, {
+
+  return gulp.src(APP.paths.DIST_PATH, {
     read: false
   })
     .pipe(plumber(function (err) {
-      onError(err);
+      APP.onError(err);
     }))
     .pipe(clean({ force: true }));
 
@@ -422,23 +427,23 @@ gulp.task('default', (cb) => {
 // Export project for production to dist folder
 gulp.task('export', (cb) => {
 
-  currentMode = 'export';
+  APP.currentMode = 'export';
 
-  let notificationSetting = settings.showNotifications;
+  let notificationSetting = APP.settings.showNotifications;
 
-  settings.showNotifications = false;
+  APP.settings.showNotifications = false;
 
   gulpSequence(
     'default',
     function () {
       cb();
-      settings.showNotifications = notificationSetting;
+      APP.settings.showNotifications = notificationSetting;
       if (!errorAtFirstStart) {
         console.log('Export completed successfully!');
-        popNotification('success', 'Export completed successfully!');
+        APP.popNotification('success', 'Export completed successfully!');
       } else {
         console.log('Export completed with some errors!');
-        popNotification('warning', 'Export completed with some errors!');
+        APP.popNotification('warning', 'Export completed with some errors!');
       }
     }
   );
@@ -446,7 +451,7 @@ gulp.task('export', (cb) => {
 
 // Http server
 gulp.task('serve', (cb) => {
-  if (settings[currentMode].serve) {
+  if (APP.settings[APP.currentMode].serve) {
     connect.server({
       root: 'dist',
       livereload: true
@@ -459,22 +464,22 @@ gulp.task('serve', (cb) => {
 
 // Watch
 gulp.task('watch', () => {
-  let notificationSetting = settings.showNotifications;
+  let notificationSetting = APP.settings.showNotifications;
 
-  settings.showNotifications = false;
-  currentMode = 'watch';
+  APP.settings.showNotifications = false;
+  APP.currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
   gulpSequence('default', 'serve', () => {
-    settings.showNotifications = notificationSetting;
+    APP.settings.showNotifications = notificationSetting;
     if (errorAtFirstStart) {
-      popNotification('warning', 'Watch mode started with some errors!');
+      APP.popNotification('warning', 'Watch mode started with some errors!');
     } else {
-      popNotification('success', 'Watch mode started!');
+      APP.popNotification('success', 'Watch mode started!');
     }
   });
 
-  gulp.watch(path.SCRIPTS_SRC, ['scripts:bundle', 'eslint']);
-  gulp.watch(path.STYLES_SRC, ['styles:scss']);
-  gulp.watch(path.IMAGES_SRC, ['copy:images']);
-  gulp.watch(path.HTMLS_ALL_SRC, ['fileinclude:html']);
+  gulp.watch(APP.paths.SCRIPTS_SRC, ['scripts:bundle', 'eslint']);
+  gulp.watch(APP.paths.STYLES_SRC, ['styles:scss']);
+  gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
+  gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
 });
