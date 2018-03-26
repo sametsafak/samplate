@@ -25,7 +25,8 @@ let concat = require('gulp-concat'),
   connect = require('gulp-connect'),
   gulpif = require('gulp-if'),
   uglify = require('gulp-uglify'),
-  notifier = require('node-notifier');
+  notifier = require('node-notifier'),
+  fs = require('fs');
 
 // let merge = require('merge-stream');
 
@@ -411,6 +412,13 @@ gulp.task('clean', () => {
 
 });
 
+// creates a date for using as version
+gulp.task('createVersion', function (cb) {
+  let d = new Date();
+
+  fs.writeFile('version.cshtml', d.getTime(), cb);
+});
+
 // Default tasks
 gulp.task('default', (cb) => {
   gulpSequence('clean', [
@@ -419,7 +427,8 @@ gulp.task('default', (cb) => {
     'eslint',
     'scripts:bundle',
     'imagesHandler',
-    'copy:givenpaths'
+    'copy:givenpaths',
+    'createVersion'
   ],
   cb); // after clean task finished, calls other tasks
 });
@@ -483,3 +492,9 @@ gulp.task('watch', () => {
   gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
   gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
 });
+
+
+
+
+
+
