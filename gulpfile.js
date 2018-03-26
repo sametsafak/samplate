@@ -119,15 +119,10 @@ let defaultSettings = {
   }
 };
 
-// let settings = Object.assign({}, defaultSettings, userSettings);
 let settings = helpers.mergeDeep(defaultSettings, userSettings);
-
-console.log(settings);
 let path = settings.paths;
 let currentMode = 'watch'; // 'watch' or 'export'
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
-
-
 
 
 let popNotification = function (type, message) {
@@ -223,7 +218,6 @@ gulp.task('scripts:bundle', function (done) {
 
     let sources = settings.bundles[bundle].files;
 
-    console.log(sources);
     stream = gulp.src(sources) // value of bundle key in settings object
       .pipe(plumber(function (err) {
         onError(err, this, self);
