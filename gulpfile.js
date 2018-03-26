@@ -29,6 +29,36 @@ let concat = require('gulp-concat'),
 
 // let merge = require('merge-stream');
 
+let helpers = {
+  isObject: function (item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
+  },
+  mergeDeep: function (target, ...sources) {
+    if (!sources.length) {
+      return target;
+    }
+    const source = sources.shift();
+
+    if (helpers.isObject(target) && helpers.isObject(source)) {
+      for (const key in source) {
+        if (helpers.isObject(source[key])) {
+          if (!target[key]) {
+            Object.assign(target, {
+              [key]: {}
+            });
+          }
+          helpers.mergeDeep(target[key], source[key]);
+        } else {
+          Object.assign(target, {
+            [key]: source[key]
+          });
+        }
+      }
+    }
+    return helpers.mergeDeep(target, ...sources);
+  }
+};
+
 let defaultSettings = {
   paths: {
 
@@ -89,10 +119,15 @@ let defaultSettings = {
   }
 };
 
-let settings = Object.assign(defaultSettings, userSettings);
+// let settings = Object.assign({}, defaultSettings, userSettings);
+let settings = helpers.mergeDeep(defaultSettings, userSettings);
+
+console.log(settings);
 let path = settings.paths;
 let currentMode = 'watch'; // 'watch' or 'export'
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
+
+
 
 
 let popNotification = function (type, message) {
@@ -188,6 +223,7 @@ gulp.task('scripts:bundle', function (done) {
 
     let sources = settings.bundles[bundle].files;
 
+    console.log(sources);
     stream = gulp.src(sources) // value of bundle key in settings object
       .pipe(plumber(function (err) {
         onError(err, this, self);
@@ -252,14 +288,12 @@ gulp.task('optimizeImages', (done) => {
         optimizationLevel: 5
       }),
       imagemin.svgo({
-        plugins: [
-          {
-            removeViewBox: true
-          },
-          {
-            cleanupIDs: false
-          }
-        ]
+        plugins: [{
+          removeViewBox: true
+        },
+        {
+          cleanupIDs: false
+        }]
       }),
       imageminPngquant(),
       imageminJpegRecompress()
@@ -275,24 +309,25 @@ gulp.task('optimizeImages', (done) => {
 // File include for html files
 gulp.task('fileinclude:html', function () {
 
-  let stream = gulp
+  let stream;
+
+
+  console.log(path);
+
+  stream = gulp
     // .src("./src/html/[^_]*.html")
-    .src(path.HTMLS_SRC);
-
-  if (settings.fileIncludeActive) {
-
-    stream.pipe(fileinclude({
+    .src(path.HTMLS_SRC)
+    .pipe(plumber(function (err) {
+      onError(err);
+    }))
+    .pipe(gulpif(settings.fileIncludeActive, fileinclude({
       prefix: '@@',
       suffix: '',
       basepath: '@file',
       indent: true
-    }))
-      .pipe(plumber(function (err) {
-        onError(err);
-      }))
-      .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()))
-      .pipe(gulp.dest(path.HTMLS_DIST));
-  }
+    })))
+    .pipe(gulpif(settings[currentMode].refreshPageAfter.fileInclude, connect.reload()))
+    .pipe(gulp.dest(path.HTMLS_DIST));
   return stream;
 });
 
@@ -321,7 +356,9 @@ gulp.task('copy:givenpaths', (done) => {
 
   self.errorHappened = false;
   let stream = gulp
-    .src(settings.copytoDistPaths, { base: './src/' })
+    .src(settings.copytoDistPaths, {
+      base: './src/'
+    })
     .pipe(plumber(function (err) {
       onError(err);
     }))
@@ -362,10 +399,9 @@ gulp.task('exportzip', (done) => {
 
 // Delete dist folder
 gulp.task('clean', () => {
-  return gulp.src(path.DIST_PATH,
-    {
-      read: false
-    })
+  return gulp.src(path.DIST_PATH, {
+    read: false
+  })
     .pipe(plumber(function (err) {
       onError(err);
     }))
@@ -375,16 +411,15 @@ gulp.task('clean', () => {
 
 // Default tasks
 gulp.task('default', (cb) => {
-  gulpSequence('clean',
-    [
-      'fileinclude:html',
-      'styles:scss',
-      'eslint',
-      'scripts:bundle',
-      'imagesHandler',
-      'copy:givenpaths'
-    ],
-    cb); // after clean task finished, calls other tasks
+  gulpSequence('clean', [
+    'fileinclude:html',
+    'styles:scss',
+    'eslint',
+    'scripts:bundle',
+    'imagesHandler',
+    'copy:givenpaths'
+  ],
+  cb); // after clean task finished, calls other tasks
 });
 
 // Export project for production to dist folder
