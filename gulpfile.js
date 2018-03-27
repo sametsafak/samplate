@@ -84,7 +84,9 @@ let APP = (function () {
         SCRIPTS_DIST: './dist/assets/js',
         STYLES_DIST: './dist/assets/css',
         IMAGES_DIST: './dist/assets/img',
-        HTMLS_DIST: './dist/'
+        HTMLS_DIST: './dist/',
+        VERSION_DIST: './dist/',
+        VERSION_FILE_NAME: 'version.txt'
       },
       bundles: {
         a: {
