@@ -415,14 +415,14 @@ gulp.task('clean', () => {
 // creates a date for using as version
 gulp.task('createVersion', function (cb) {
   let date = new Date();
+
   date = date.getTime();
 
   mkdirp(APP.paths.VERSION_DIST, function (err) {
     if (err) {
-      console.error(err)
+      console.error(err);
       cb();
-    }
-    else {
+    } else {
       fs.writeFile(APP.paths.VERSION_DIST + APP.paths.VERSION_FILE_NAME, date, cb);
     }
   });
