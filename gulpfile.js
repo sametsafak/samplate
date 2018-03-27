@@ -26,9 +26,8 @@ let concat = require('gulp-concat'),
   gulpif = require('gulp-if'),
   uglify = require('gulp-uglify'),
   notifier = require('node-notifier'),
-  fs = require('fs');
-
-// let merge = require('merge-stream');
+  fs = require('fs'),
+  mkdirp = require('mkdirp');
 
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
@@ -242,6 +241,7 @@ gulp.task('scripts:bundle', function (done) {
   });
 });
 
+// Eslint
 gulp.task('eslint', function () {
 
   let self = this;
@@ -414,9 +414,21 @@ gulp.task('clean', () => {
 
 // creates a date for using as version
 gulp.task('createVersion', function (cb) {
-  let d = new Date();
+  let date = new Date();
+  date = date.getTime();
 
-  fs.writeFile('version.cshtml', d.getTime(), cb);
+  mkdirp(APP.paths.VERSION_DIST, function (err) {
+    if (err) {
+      console.error(err)
+      cb();
+    }
+    else {
+      fs.writeFile(APP.paths.VERSION_DIST + APP.paths.VERSION_FILE_NAME, date, cb);
+    }
+  });
+
+  // fs.writeFile('asd/version.cshtml', d.getTime(), cb);
+
 });
 
 // Default tasks
