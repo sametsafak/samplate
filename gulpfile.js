@@ -492,17 +492,18 @@ gulp.task('default', () => {
 
   table.push(
     { 'watch': 'Start watch mode.' },
+    { 'allTasks': 'It makes same tasks of watch mode except watching files.' },
+    { 'export': 'Export project for production.' },
+    { 'Single Tasks': '---' },
+    { 'exportzip': 'Export project as zip file.' },
+    { 'clean': 'Clean dist folder.' },
     { 'styles:scss': 'Compile css files from sass files. Create sourcemaps, autoprefixes, and minifiy them.' },
     { 'scripts:bundle': 'Bundle script files. Babel is included (without import/export using) so you can write es6 codes.' },
     { 'eslint': 'Lints the scripts. You can enable or disable if for each bundle gulp.config.js file.' },
     { 'optimizeImages': 'Optimize images (gif, jpeg, svg, png).' },
     { 'fileinclude': 'Compile htmls with added partials like header.html, footer.html etc.' },
     { 'copy:images': 'Copy images to dist folder.' },
-    { 'copy:givenpaths': 'Copy paths to dist folder.' },
-    { 'exportzip': 'Export project as zip file.' },
-    { 'clean': 'Clean dist folder.' },
-    { 'allTasks': 'It makes same tasks of watch mode except watching files.' },
-    { 'export': 'Export project for production.' }
+    { 'copy:givenpaths': 'Copy paths to dist folder.' }
   );
 
   // table.push(
