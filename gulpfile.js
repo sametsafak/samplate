@@ -457,7 +457,7 @@ gulp.task('export', (cb) => {
   APP.settings.showNotifications = false;
 
   gulpSequence(
-    'default',
+    'allTasks',
     function () {
       cb();
       APP.settings.showNotifications = notificationSetting;
