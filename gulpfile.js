@@ -309,12 +309,7 @@ gulp.task('optimizeImages', (done) => {
 });
 
 // File include for html files
-gulp.task('fileinclude:html', function (cb) {
-
-  if (!APP.settings.fileIncludeActive) {
-    cb();
-    return false;
-  }
+gulp.task('fileinclude:html', function () {
 
   let stream;
 
@@ -433,18 +428,23 @@ gulp.task('createVersion', function (cb) {
 
 });
 
-// Default tasks
-gulp.task('default', (cb) => {
-  gulpSequence('clean', [
-    'fileinclude:html',
+// All tasks for watch or export
+gulp.task('allTasks', (cb) => {
+
+  let tasksArray = [
     'styles:scss',
     'eslint',
     'scripts:bundle',
     'imagesHandler',
     'copy:givenpaths',
     'createVersion'
-  ],
-  cb); // after clean task finished, calls other tasks
+  ];
+
+  if (APP.settings.fileIncludeActive) {
+    tasksArray.unshift('fileinclude:html');
+  }
+
+  gulpSequence('clean', tasksArray, cb); // after clean task finished, calls other tasks
 });
 
 // Export project for production to dist folder
@@ -485,6 +485,37 @@ gulp.task('serve', (cb) => {
   }
 });
 
+// Default
+gulp.task('default', () => {
+  let Table = require('cli-table2');
+  let table = new Table();
+
+  table.push(
+    { 'watch': 'Start watch mode.' },
+    { 'styles:scss': 'Compile css files from sass files. Create sourcemaps, autoprefixes, and minifiy them.' },
+    { 'scripts:bundle': 'Bundle script files. Babel is included (without import/export using) so you can write es6 codes.' },
+    { 'eslint': 'Lints the scripts. You can enable or disable if for each bundle gulp.config.js file.' },
+    { 'optimizeImages': 'Optimize images (gif, jpeg, svg, png).' },
+    { 'fileinclude': 'Compile htmls with added partials like header.html, footer.html etc.' },
+    { 'copy:images': 'Copy images to dist folder.' },
+    { 'copy:givenpaths': 'Copy paths to dist folder.' },
+    { 'exportzip': 'Export project as zip file.' },
+    { 'clean': 'Clean dist folder.' },
+    { 'allTasks': 'It makes same tasks of watch mode except watching files.' },
+    { 'export': 'Export project for production.' }
+  );
+
+  // table.push(
+  //   { 'Some key': 'Some value' }
+  //   , { 'Another key': 'Another value' }
+  // );
+
+  console.log(table.toString());
+  console.log('For more information, check https://github.com/sametsafak/samplate');
+  console.log('---');
+
+});
+
 // Watch
 gulp.task('watch', () => {
   let notificationSetting = APP.settings.showNotifications;
@@ -492,7 +523,7 @@ gulp.task('watch', () => {
   APP.settings.showNotifications = false;
   APP.currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
-  gulpSequence('default', 'serve', () => {
+  gulpSequence('allTasks', 'serve', () => {
     APP.settings.showNotifications = notificationSetting;
     if (errorAtFirstStart) {
       APP.popNotification('warning', 'Watch mode started with some errors!');

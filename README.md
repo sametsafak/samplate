@@ -149,5 +149,6 @@ copy:images | Copy images to dist folder.
 copy:givenpaths | Copy paths to dist folder.
 exportzip | Export project as zip file.
 clean | Clean dist folder.
-default |  Or just write __gulp__ to the terminal. It makes same tasks of **watch mode** except watching files.
+allTasks |  It makes same tasks of **watch mode** except watching files.
+default |  Show list of all commands.
 export | Export project for **production.**
