@@ -3,7 +3,8 @@ let userSettings = require('./gulp.config.js');
 // Style packages
 let sass = require('gulp-sass'),
   autoprefixer = require('gulp-autoprefixer'),
-  cleanCSS = require('gulp-clean-css');
+  cleanCSS = require('gulp-clean-css'),
+  spritesmith = require('gulp.spritesmith');
 
 // Script packages
 let babel = require('gulp-babel'),
@@ -27,7 +28,9 @@ let concat = require('gulp-concat'),
   uglify = require('gulp-uglify'),
   notifier = require('node-notifier'),
   fs = require('fs'),
-  mkdirp = require('mkdirp');
+  mkdirp = require('mkdirp'),
+  buffer = require('vinyl-buffer'),
+  merge = require('merge-stream');
 
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
@@ -189,6 +192,32 @@ let APP = (function () {
 }());
 
 APP.init();
+
+// Sprite
+gulp.task('sprite', function () {
+  // Generate our spritesheet
+  var spriteData = gulp.src('./src/assets/img/sprite/*.png').pipe(spritesmith({
+    retinaSrcFilter: ['images/*@2x.png'],
+    imgName: 'sprite.png',
+    retinaImgName: 'sprite@2x.png',
+    cssName: 'sprite.css'
+  }));
+
+  // Pipe image stream through image optimizer and onto disk
+  var imgStream = spriteData.img
+    // DEV: We must buffer our stream into a Buffer for `imagemin`
+    .pipe(buffer())
+    .pipe(imagemin())
+    .pipe(gulp.dest('./'));
+
+  // Pipe CSS stream through CSS optimizer and onto disk
+  var cssStream = spriteData.css
+    // .pipe(csso())
+    .pipe(gulp.dest('./'));
+
+  // Return a merged stream to handle both `end` events
+  return merge(imgStream, cssStream);
+});
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
