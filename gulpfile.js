@@ -144,7 +144,7 @@ let APP = (function () {
       switch (type) {
       case 'error':
         obj.title = 'Error';
-        obj.timeout = 4;
+        obj.timeout = 3;
         obj.sound = 'Morse';
         break;
       case 'warning':
@@ -159,7 +159,7 @@ let APP = (function () {
         break;
       default:
         obj.title = 'Samplate';
-        obj.timeout = 4;
+        obj.timeout = 3;
         obj.sound = 'Pop';
       }
 
@@ -169,7 +169,8 @@ let APP = (function () {
           subtitle: obj.title,
           message: message,
           sound: obj.sound,
-          timeout: obj.timeout
+          timeout: obj.timeout,
+          wait: false
         });
       }
     },
@@ -473,16 +474,11 @@ gulp.task('export', (cb) => {
 });
 
 // Http server
-gulp.task('serve', (cb) => {
-  if (APP.settings[APP.currentMode].serve) {
-    connect.server({
-      root: 'dist',
-      livereload: true
-    });
-  } else {
-    cb();
-    return;
-  }
+gulp.task('serve', () => {
+  connect.server({
+    root: 'dist',
+    livereload: true
+  });
 });
 
 // Default
@@ -506,11 +502,6 @@ gulp.task('default', () => {
     { 'copy:givenpaths': 'Copy paths to dist folder.' }
   );
 
-  // table.push(
-  //   { 'Some key': 'Some value' }
-  //   , { 'Another key': 'Another value' }
-  // );
-
   console.log(table.toString());
   console.log('For more information, check https://github.com/sametsafak/samplate');
   console.log('---');
@@ -520,18 +511,26 @@ gulp.task('default', () => {
 // Watch
 gulp.task('watch', () => {
   let notificationSetting = APP.settings.showNotifications;
+  let watchTasks = [];
 
   APP.settings.showNotifications = false;
   APP.currentMode = 'watch';
   // This line written because I need to check the condition above before tasks started.
-  gulpSequence('allTasks', 'serve', () => {
+
+  function afterWatchStarted() {
     APP.settings.showNotifications = notificationSetting;
     if (errorAtFirstStart) {
       APP.popNotification('warning', 'Watch mode started with some errors!');
     } else {
       APP.popNotification('success', 'Watch mode started!');
     }
-  });
+  }
+
+  if (APP.settings[APP.currentMode].serve) {
+    watchTasks.push('serve');
+  }
+
+  gulpSequence('allTasks', watchTasks, afterWatchStarted);
 
   gulp.watch(APP.paths.SCRIPTS_SRC, ['scripts:bundle', 'eslint']);
   gulp.watch(APP.paths.STYLES_SRC, ['styles:scss']);
