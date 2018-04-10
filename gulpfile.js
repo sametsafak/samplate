@@ -3,7 +3,8 @@ let userSettings = require('./gulp.config.js');
 // Style packages
 let sass = require('gulp-sass'),
   autoprefixer = require('gulp-autoprefixer'),
-  cleanCSS = require('gulp-clean-css');
+  cleanCSS = require('gulp-clean-css'),
+  spritesmith = require('gulp.spritesmith');
 
 // Script packages
 let babel = require('gulp-babel'),
@@ -27,7 +28,9 @@ let concat = require('gulp-concat'),
   uglify = require('gulp-uglify'),
   notifier = require('node-notifier'),
   fs = require('fs'),
-  mkdirp = require('mkdirp');
+  mkdirp = require('mkdirp'),
+  buffer = require('vinyl-buffer'),
+  merge = require('merge-stream');
 
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
@@ -190,6 +193,65 @@ let APP = (function () {
 }());
 
 APP.init();
+
+// Sprite
+gulp.task('sprite', function (done) {
+
+  let self = this;
+  let sprites = Object.keys(APP.settings.sprites);
+  let stream;
+
+  self.errorHappened = false;
+  sprites.map(function (sprite) { // loops every sprite key inside of sprites object
+
+    let spriteSettingObj = APP.settings.sprites[sprite];
+
+    let obj = {
+      imgName: spriteSettingObj.imgName,
+      cssName: spriteSettingObj.cssName,
+      cssOpts: {
+        cssSelector: function (sprite) {
+          return (spriteSettingObj.cssPrefix || '.icon-') + sprite.name;
+        }
+      }
+    };
+
+    if (spriteSettingObj.retinaSrcFilter && spriteSettingObj.retinaImgName) {
+      obj.retinaSrcFilter = spriteSettingObj.retinaSrcFilter;
+      obj.retinaImgName = spriteSettingObj.retinaImgName;
+    }
+
+    // Generate our spritesheet
+    let spriteData = gulp.src(spriteSettingObj.files).pipe(spritesmith(obj));
+
+    var imgStream = spriteData.img
+    // DEV: We must buffer our stream into a Buffer for `imagemin`
+      .pipe(buffer())
+      .pipe(gulpif(APP.settings[APP.currentMode].optimizeImages, imagemin([
+        imagemin.gifsicle({
+          interlaced: true
+        }),
+        imagemin.optipng({
+          optimizationLevel: 5
+        }),
+        imageminPngquant()
+      ])))
+      .pipe(gulp.dest(APP.paths.SPRITES_DIST));
+
+    // Pipe CSS stream through CSS optimizer and onto disk
+    var cssStream = spriteData.css
+      .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
+      .pipe(gulp.dest(APP.paths.SPRITES_DIST));
+
+    // Return a merged stream to handle both `end` events
+    stream = merge(imgStream, cssStream);
+    stream.resume();
+  });
+
+  stream.on('end', function () {
+    APP.streamEndHandler(self, 'sprite task completed!', done);
+  });
+});
 
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
@@ -437,6 +499,7 @@ gulp.task('allTasks', (cb) => {
     'eslint',
     'scripts:bundle',
     'imagesHandler',
+    'sprite',
     'copy:givenpaths',
     'createVersion'
   ];
@@ -536,6 +599,7 @@ gulp.task('watch', () => {
   gulp.watch(APP.paths.STYLES_SRC, ['styles:scss']);
   gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
   gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
+  gulp.watch(APP.paths.SPRITES_SRC, ['sprites']);
 });
 
 
