@@ -7,7 +7,7 @@ module.exports = {
     SCRIPTS_SRC: ['src/assets/js/**/*.js'],
     STYLES_SRC: ['src/assets/sass/**/*.scss'],
     IMAGES_SRC: ['src/assets/img/**/*.*'],
-    SPRITES_SRC: ['src/assets/sprite/*.*'],
+    SPRITES_SRC: ['src/assets/sprite/**/*.*'],
 
     // Html paths
     HTMLS_SRC: ['src/*.html'], // Main html files' sources (Without partials like header.html etc)

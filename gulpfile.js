@@ -195,7 +195,7 @@ let APP = (function () {
 APP.init();
 
 // Sprite
-gulp.task('sprite', function (done) {
+gulp.task('sprites', function (done) {
 
   let self = this;
   let sprites = Object.keys(APP.settings.sprites);
@@ -222,10 +222,17 @@ gulp.task('sprite', function (done) {
     }
 
     // Generate our spritesheet
-    let spriteData = gulp.src(spriteSettingObj.files).pipe(spritesmith(obj));
+    let spriteData = gulp.src(spriteSettingObj.files)
+      .pipe(plumber(function (err) {
+        APP.onError(err, this, self);
+      }))
+      .pipe(spritesmith(obj));
 
     var imgStream = spriteData.img
     // DEV: We must buffer our stream into a Buffer for `imagemin`
+      .pipe(plumber(function (err) {
+        APP.onError(err, this, self);
+      }))
       .pipe(buffer())
       .pipe(gulpif(APP.settings[APP.currentMode].optimizeImages, imagemin([
         imagemin.gifsicle({
@@ -240,6 +247,9 @@ gulp.task('sprite', function (done) {
 
     // Pipe CSS stream through CSS optimizer and onto disk
     var cssStream = spriteData.css
+      .pipe(plumber(function (err) {
+        APP.onError(err, this, self);
+      }))
       .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
       .pipe(gulp.dest(APP.paths.SPRITES_DIST));
 
@@ -499,7 +509,7 @@ gulp.task('allTasks', (cb) => {
     'eslint',
     'scripts:bundle',
     'imagesHandler',
-    'sprite',
+    'sprites',
     'copy:givenpaths',
     'createVersion'
   ];
