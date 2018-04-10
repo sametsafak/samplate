@@ -31,8 +31,7 @@ let concat = require('gulp-concat'),
   mkdirp = require('mkdirp'),
   buffer = require('vinyl-buffer'),
   merge = require('merge-stream'),
-  // filesExist = require('files-exist'),
-  glob = require('glob');
+  filesExist = require('files-exist');
 
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
@@ -43,45 +42,6 @@ let APP = (function () {
   return {
     isObject: function (item) {
       return item && typeof item === 'object' && !Array.isArray(item);
-    },
-    filesExist: function(fileArray) {
-      let options = {
-        checkGlobs: false,
-        throwOnMissing: true,
-        exceptionClass: 'Error',
-        exceptionMessage: 'A required file is missing'
-      };
-
-      if (typeof fileArray === 'string') {
-        fileArray = [fileArray];
-      }
-
-      return fileArray.filter(function(file) {
-        if (APP.isExceptFileSyntax(file)) {
-          return true;
-        }
-
-        if (glob.hasMagic(file) && options.checkGlobs === false) {
-          return true;
-        }
-
-        // TODO: Check files asynchronously
-        if (glob.sync(file).length === 0) {
-          if (options.throwOnMissing) {
-            console.log(options.exceptionMessage + ': ' + file);
-            APP.popNotification('error', options.exceptionMessage + ': ' + file);
-            errorAtFirstStart = true;
-          } else {
-            return false;
-          }
-        }
-
-        return true;
-
-      });
-    },
-    isExceptFileSyntax(filePath) {
-      return (filePath || '').indexOf('!') === 0;
     },
     mergeDeep: function (target, ...sources) {
       if (!sources.length) {
@@ -340,9 +300,13 @@ gulp.task('scripts:bundle', function (done) {
 
     let sources = APP.settings.bundles[bundle].files;
 
-    filesExistError = APP.filesExist(sources);
-
-    // console.log(filesExist(sources, { exceptionClass: 'Test' }));
+    filesExist(sources, {
+      throwOnMissing: false,
+      onMissing: function (file) {
+        filesExistError = true;
+        console.log('Warning! Script file is missing: ' + file);
+      }
+    });
 
     stream = gulp.src(sources) // value of bundle key in APP.settings object
     // stream = gulp.src(filesExist(sources, { exceptionMessage: 'Warning! Script file is missing: ', exceptionClass: Naber })) // value of bundle key in APP.settings object
@@ -360,7 +324,11 @@ gulp.task('scripts:bundle', function (done) {
 
   stream.on('end', function () {
     console.log('filesExistError:', filesExistError);
-    APP.streamEndHandler(self, 'script:bundle task completed!', done);
+    if (filesExistError) {
+      APP.onError(err, this, self);
+    } else {
+      APP.streamEndHandler(self, 'script:bundle task completed!', done);
+    }
   });
 });
 
