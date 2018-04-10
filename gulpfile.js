@@ -207,7 +207,12 @@ gulp.task('sprite', function (done) {
 
     let obj = {
       imgName: spriteSettingObj.imgName,
-      cssName: spriteSettingObj.cssName
+      cssName: spriteSettingObj.cssName,
+      cssOpts: {
+        cssSelector: function (sprite) {
+          return (spriteSettingObj.cssPrefix || '.icon-') + sprite.name;
+        }
+      }
     };
 
     if (spriteSettingObj.retinaSrcFilter && spriteSettingObj.retinaImgName) {
@@ -221,16 +226,25 @@ gulp.task('sprite', function (done) {
     var imgStream = spriteData.img
     // DEV: We must buffer our stream into a Buffer for `imagemin`
       .pipe(buffer())
-      .pipe(imagemin())
-      .pipe(gulp.dest('./sprite/'));
+      .pipe(gulpif(APP.settings[APP.currentMode].optimizeImages, imagemin([
+        imagemin.gifsicle({
+          interlaced: true
+        }),
+        imagemin.optipng({
+          optimizationLevel: 5
+        }),
+        imageminPngquant()
+      ])))
+      .pipe(gulp.dest(APP.paths.SPRITES_DIST));
 
     // Pipe CSS stream through CSS optimizer and onto disk
     var cssStream = spriteData.css
-      // .pipe(csso())
-      .pipe(gulp.dest('./sprite/'));
+      .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
+      .pipe(gulp.dest(APP.paths.SPRITES_DIST));
 
     // Return a merged stream to handle both `end` events
     stream = merge(imgStream, cssStream);
+    stream.resume();
   });
 
   stream.on('end', function () {
