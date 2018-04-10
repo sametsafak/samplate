@@ -14,6 +14,7 @@
     "babel-preset-env": "^1.6.1",
     "cli-table2": "^0.2.0",
     "eslint": "^4.18.1",
+    "files-exist": "^1.0.2",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^4.1.0",
     "gulp-babel": "^7.0.1",
