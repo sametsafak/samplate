@@ -574,7 +574,7 @@ gulp.task('default', () => {
 // Watch
 gulp.task('watch', () => {
   let notificationSetting = APP.settings.showNotifications;
-  let watchTasks = [];
+  let watchTasks = null;
 
   APP.settings.showNotifications = false;
   APP.currentMode = 'watch';
@@ -590,6 +590,7 @@ gulp.task('watch', () => {
   }
 
   if (APP.settings[APP.currentMode].serve) {
+    watchTasks = watchTasks || [];
     watchTasks.push('serve');
   }
 

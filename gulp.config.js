@@ -53,7 +53,7 @@ module.exports = {
     }
   },
   watch: {
-    serve: false,
+    serve: true,
     uglifyScripts: false,
     minifyCss: false,
     optimizeImages: false,
