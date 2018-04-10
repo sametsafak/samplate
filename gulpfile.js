@@ -248,7 +248,7 @@ gulp.task('sprite', function (done) {
   });
 
   stream.on('end', function () {
-    APP.streamEndHandler(self, 'styles:sprite task completed!', done);
+    APP.streamEndHandler(self, 'sprite task completed!', done);
   });
 });
 
@@ -498,6 +498,7 @@ gulp.task('allTasks', (cb) => {
     'eslint',
     'scripts:bundle',
     'imagesHandler',
+    'sprite',
     'copy:givenpaths',
     'createVersion'
   ];
@@ -599,6 +600,7 @@ gulp.task('watch', () => {
   gulp.watch(APP.paths.STYLES_SRC, ['styles:scss']);
   gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
   gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
+  gulp.watch(APP.paths.SPRITES_SRC, ['sprites']);
 });
 
 
