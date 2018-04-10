@@ -7,6 +7,7 @@ module.exports = {
     SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
     STYLES_SRC: ['./src/assets/sass/**/*.scss'],
     IMAGES_SRC: ['./src/assets/img/**/*.*'],
+    SPRITES_SRC: ['./src/assets/img/sprite/*.*'],
 
     // Html paths
     HTMLS_SRC: ['./src/*.html'], // Main html files' sources (Without partials like header.html etc)
@@ -33,8 +34,22 @@ module.exports = {
       files: './src/assets/js/b/**/*.js'
     }
   },
+  sprites: {
+    retina: {
+      files: ['./src/assets/img/sprite/retina/*.png'],
+      retinaSrcFilter: ['./src/assets/img/sprite/retina/*@2x.png'],
+      imgName: 'sprite-retina.png',
+      retinaImgName: 'sprite-retina@2x.png',
+      cssName: 'sprite-retina.css'
+    },
+    notRetina: {
+      files: ['./src/assets/img/sprite/not-retina/*.png'],
+      imgName: 'sprite-not-retina.png',
+      cssName: 'sprite-not-retina.css'
+    }
+  },
   watch: {
-    serve: true,
+    serve: false,
     uglifyScripts: false,
     minifyCss: false,
     optimizeImages: false,

@@ -194,29 +194,48 @@ let APP = (function () {
 APP.init();
 
 // Sprite
-gulp.task('sprite', function () {
-  // Generate our spritesheet
-  var spriteData = gulp.src('./src/assets/img/sprite/*.png').pipe(spritesmith({
-    retinaSrcFilter: ['images/*@2x.png'],
-    imgName: 'sprite.png',
-    retinaImgName: 'sprite@2x.png',
-    cssName: 'sprite.css'
-  }));
+gulp.task('sprite', function (done) {
 
-  // Pipe image stream through image optimizer and onto disk
-  var imgStream = spriteData.img
+  let self = this;
+  let sprites = Object.keys(APP.settings.sprites);
+  let stream;
+
+  self.errorHappened = false;
+  sprites.map(function (sprite) { // loops every sprite key inside of sprites object
+
+    let spriteSettingObj = APP.settings.sprites[sprite];
+
+    let obj = {
+      imgName: spriteSettingObj.imgName,
+      cssName: spriteSettingObj.cssName
+    };
+
+    if (spriteSettingObj.retinaSrcFilter && spriteSettingObj.retinaImgName) {
+      obj.retinaSrcFilter = spriteSettingObj.retinaSrcFilter;
+      obj.retinaImgName = spriteSettingObj.retinaImgName;
+    }
+
+    // Generate our spritesheet
+    let spriteData = gulp.src(spriteSettingObj.files).pipe(spritesmith(obj));
+
+    var imgStream = spriteData.img
     // DEV: We must buffer our stream into a Buffer for `imagemin`
-    .pipe(buffer())
-    .pipe(imagemin())
-    .pipe(gulp.dest('./'));
+      .pipe(buffer())
+      .pipe(imagemin())
+      .pipe(gulp.dest('./sprite/'));
 
-  // Pipe CSS stream through CSS optimizer and onto disk
-  var cssStream = spriteData.css
-    // .pipe(csso())
-    .pipe(gulp.dest('./'));
+    // Pipe CSS stream through CSS optimizer and onto disk
+    var cssStream = spriteData.css
+      // .pipe(csso())
+      .pipe(gulp.dest('./sprite/'));
 
-  // Return a merged stream to handle both `end` events
-  return merge(imgStream, cssStream);
+    // Return a merged stream to handle both `end` events
+    stream = merge(imgStream, cssStream);
+  });
+
+  stream.on('end', function () {
+    APP.streamEndHandler(self, 'styles:sprite task completed!', done);
+  });
 });
 
 // Styles For SCSS

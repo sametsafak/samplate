@@ -17,19 +17,19 @@ To change `display` (e.g. `display: inline-block;`), we suggest using a common C
 <i class="icon icon-home"></i>
 */
 .icon-bkm-express {
-  background-image: url(sprite.png);
+  background-image: url(sprite-not-retina.png);
   background-position: 0px 0px;
   width: 334px;
   height: 119px;
 }
 .icon-blue-time {
-  background-image: url(sprite.png);
+  background-image: url(sprite-not-retina.png);
   background-position: -120px -119px;
   width: 19px;
   height: 19px;
 }
 .icon-boarding-card-plane {
-  background-image: url(sprite.png);
+  background-image: url(sprite-not-retina.png);
   background-position: 0px -119px;
   width: 120px;
   height: 67px;
