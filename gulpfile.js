@@ -304,8 +304,12 @@ gulp.task('scripts:bundle', function (done) {
       }))
       .pipe(sourcemaps.init())
       .pipe(gulpif(APP.settings.bundles[bundle].babel, babel()))
-      .pipe(gulpif(APP.settings[APP.currentMode].uglifyScripts, uglify()))
       .pipe(concat(bundle + '.js'))
+      .pipe(gulpif(APP.settings[APP.currentMode].uglifyScripts, uglify()))
+      .pipe(sourcemaps.mapSources(function(sourcePath, file) {
+        // source paths are prefixed with '../src/'
+        return bundle + '/' + sourcePath;
+      }))
       .pipe(sourcemaps.write('.'))
       .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.script, connect.reload()))
       .pipe(gulp.dest(APP.paths.SCRIPTS_DIST));
