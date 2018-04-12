@@ -275,9 +275,9 @@ gulp.task('styles:scss', function (done) {
     }))
     .pipe(sourcemaps.init())
     .pipe(sass())
+    // .pipe(autoprefixer()) // It is commented because of this issue https://github.com/gulp-sourcemaps/gulp-sourcemaps/issues/60
     .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
-    .pipe(autoprefixer())
-    .pipe(sourcemaps.write('./'))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.style, connect.reload()))
     .pipe(gulp.dest(APP.paths.STYLES_DIST));
 
