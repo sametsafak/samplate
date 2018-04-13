@@ -95,15 +95,10 @@ let APP = (function () {
         VERSION_FILE_NAME: 'version.txt'
       },
       bundles: {
-        a: {
+        app: {
           babel: false,
           lint: false,
-          files: ['./src/js/assets/a/a2.js', './src/assets/js/a/**/*.js']
-        },
-        b: {
-          babel: false,
-          lint: false,
-          files: './src/assets/js/b/**/*.js'
+          files: []
         }
       },
       sprites: {
