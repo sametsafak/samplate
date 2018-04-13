@@ -334,8 +334,9 @@ gulp.task('scripts:bundle', function (done) {
       .pipe(concat(bundle + '.js'))
       .pipe(gulpif(APP.settings[APP.currentMode].uglifyScripts, uglify()))
       .pipe(sourcemaps.mapSources(function(sourcePath, file) {
-        // source paths are prefixed with '../src/'
-        return bundle + '/' + sourcePath;
+        let fullParent = file.base.replace(file.cwd, '');
+
+        return fullParent + '/' + sourcePath;
       }))
       .pipe(sourcemaps.write('.'))
       .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.script, connect.reload()))

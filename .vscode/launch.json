@@ -6,10 +6,10 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}/src"
-      // "sourceMapPathOverrides": {
-      //   "/iyidir/*": "${workspaceFolder}/naber/*"
-      // }
+      "webRoot": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "*": "${workspaceFolder}/*"
+      }
     }
   ]
 }
