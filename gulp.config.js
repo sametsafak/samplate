@@ -27,7 +27,7 @@ module.exports = {
     a: {
       babel: true,
       lint: true,
-      files: ['src/js/assets/a/a2.js', 'src/assets/js/a/**/*.js']
+      files: ['src/js/assets/a/a2.js', 'src/js/assets/a/a3.js', 'src/assets/js/a/**/*.js']
     },
     b: {
       babel: false,

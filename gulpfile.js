@@ -30,7 +30,8 @@ let concat = require('gulp-concat'),
   fs = require('fs'),
   mkdirp = require('mkdirp'),
   buffer = require('vinyl-buffer'),
-  merge = require('merge-stream');
+  merge = require('merge-stream'),
+  filesExist = require('files-exist');
 
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
@@ -292,11 +293,24 @@ gulp.task('scripts:bundle', function (done) {
   let self = this;
   let bundles = Object.keys(APP.settings.bundles);
   let stream;
+  let missingFilesError = true;
 
   self.errorHappened = false;
+
+  this.missingFiles = [];
+
   bundles.map(function (bundle) { // loops every bundle key inside of bundles object
 
     let sources = APP.settings.bundles[bundle].files;
+
+    filesExist(sources, {
+      throwOnMissing: false,
+      onMissing: function (file) {
+        self.missingFilesError = true;
+        self.missingFiles.push(file);
+        // console.log('Warning! Script file is missing: ' + file);
+      }
+    });
 
     stream = gulp.src(sources) // value of bundle key in APP.settings object
       .pipe(plumber(function (err) {
@@ -316,7 +330,12 @@ gulp.task('scripts:bundle', function (done) {
   });
 
   stream.on('end', function () {
-    APP.streamEndHandler(self, 'script:bundle task completed!', done);
+    if (self.missingFilesError) {
+      self.missingFilesError = false;
+      APP.onError({ message: 'File(s) not found: ' + self.missingFiles }, this, self);
+    } else {
+      APP.streamEndHandler(self, 'script:bundle task completed!', done);
+    }
   });
 });
 
