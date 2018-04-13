@@ -293,9 +293,12 @@ gulp.task('scripts:bundle', function (done) {
   let self = this;
   let bundles = Object.keys(APP.settings.bundles);
   let stream;
-  let filesExistError = false;
+  let missingFilesError = true;
 
   self.errorHappened = false;
+
+  this.missingFiles = [];
+
   bundles.map(function (bundle) { // loops every bundle key inside of bundles object
 
     let sources = APP.settings.bundles[bundle].files;
@@ -303,13 +306,13 @@ gulp.task('scripts:bundle', function (done) {
     filesExist(sources, {
       throwOnMissing: false,
       onMissing: function (file) {
-        filesExistError = true;
-        console.log('Warning! Script file is missing: ' + file);
+        self.missingFilesError = true;
+        self.missingFiles.push(file);
+        // console.log('Warning! Script file is missing: ' + file);
       }
     });
 
     stream = gulp.src(sources) // value of bundle key in APP.settings object
-    // stream = gulp.src(filesExist(sources, { exceptionMessage: 'Warning! Script file is missing: ', exceptionClass: Naber })) // value of bundle key in APP.settings object
       .pipe(plumber(function (err) {
         APP.onError(err, this, self);
       }))
@@ -323,9 +326,9 @@ gulp.task('scripts:bundle', function (done) {
   });
 
   stream.on('end', function () {
-    console.log('filesExistError:', filesExistError);
-    if (filesExistError) {
-      APP.onError(err, this, self);
+    if (self.missingFilesError) {
+      self.missingFilesError = false;
+      APP.onError({ message: 'File(s) not found: ' + self.missingFiles }, this, self);
     } else {
       APP.streamEndHandler(self, 'script:bundle task completed!', done);
     }
