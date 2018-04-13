@@ -78,6 +78,7 @@ let APP = (function () {
         SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
         STYLES_SRC: ['./src/assets/sass/**/*.scss'],
         IMAGES_SRC: ['./src/assets/img/**/*.*'],
+        SPRITES_SRC: ['src/assets/sprite/**/*.*'],
 
         // Html paths
         HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
@@ -88,6 +89,7 @@ let APP = (function () {
         SCRIPTS_DIST: './dist/assets/js',
         STYLES_DIST: './dist/assets/css',
         IMAGES_DIST: './dist/assets/img',
+        SPRITES_DIST: 'dist/assets/sprite',
         HTMLS_DIST: './dist/',
         VERSION_DIST: './dist/',
         VERSION_FILE_NAME: 'version.txt'
@@ -102,6 +104,22 @@ let APP = (function () {
           babel: false,
           lint: false,
           files: './src/assets/js/b/**/*.js'
+        }
+      },
+      sprites: {
+        retina: {
+          files: ['src/assets/sprite/retina/*.png'],
+          retinaSrcFilter: ['src/assets/sprite/retina/*@2x.png'],
+          imgName: 'sprite-retina.png',
+          retinaImgName: 'sprite-retina@2x.png',
+          cssName: 'sprite-retina.css',
+          cssPrefix: '.retina-icon-'
+        },
+        notRetina: {
+          files: ['src/assets/sprite/not-retina/*.png'],
+          imgName: 'sprite-not-retina.png',
+          cssName: 'sprite-not-retina.css'
+          // cssPrefix: '.icon-'
         }
       },
       watch: {
