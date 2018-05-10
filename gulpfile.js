@@ -331,8 +331,9 @@ gulp.task('scripts:bundle', function (done) {
       }))
       .pipe(sourcemaps.init())
       .pipe(gulpif(APP.settings.bundles[bundle].babel, babel()))
-      .pipe(concat(bundle + '.js'))
       .pipe(gulpif(APP.settings[APP.currentMode].uglifyScripts, uglify()))
+      .on('error', function (err) { console.log('\x1b[36m%s\x1b[0m', err.toString()); })
+      .pipe(concat(bundle + '.js'))
       .pipe(sourcemaps.mapSources(function(sourcePath, file) {
         let fullParent = file.base.replace(file.cwd, '');
 
