@@ -1,8 +1,9 @@
 module.exports = {
   fileIncludeActive: true,
   showNotifications: true,
-  copytoDistPaths: ['src/copyme/**/*'],
   paths: {
+    // Copy given paths to dist folder with same path
+    COPY_SRC: ['src/copyme/**/*'],
     // Scripts paths
     SCRIPTS_SRC: ['src/assets/js/**/*.js'],
     STYLES_SRC: ['src/assets/sass/**/*.scss'],

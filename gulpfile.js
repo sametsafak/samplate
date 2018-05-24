@@ -71,9 +71,9 @@ let APP = (function () {
     defaultSettings: {
       fileIncludeActive: true,
       showNotifications: true,
-      copytoDistPaths: [],
       paths: {
-
+        // Copy given paths to dist folder with same path
+        COPY_SRC: [],
         // Scripts paths
         SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
         STYLES_SRC: ['./src/assets/sass/**/*.scss'],
@@ -460,13 +460,13 @@ gulp.task('copy:images', (done) => {
   });
 });
 
-// Copy given paths
-gulp.task('copy:givenpaths', (done) => {
+// Copy given paths to dist folder with same path
+gulp.task('copy:todist', (done) => {
   let self = this;
 
   self.errorHappened = false;
   let stream = gulp
-    .src(APP.settings.copytoDistPaths, {
+    .src(APP.paths.COPY_SRC, {
       base: './src/'
     })
     .pipe(plumber(function (err) {
@@ -476,7 +476,7 @@ gulp.task('copy:givenpaths', (done) => {
     .pipe(gulp.dest(APP.paths.DIST_PATH));
 
   stream.on('end', function () {
-    APP.streamEndHandler(self, 'copy:givenpaths task completed!', done);
+    APP.streamEndHandler(self, 'copy:todist task completed!', done);
   });
 });
 
@@ -548,7 +548,7 @@ gulp.task('allTasks', (cb) => {
     'scripts:bundle',
     'imagesHandler',
     'sprites',
-    'copy:givenpaths',
+    'copy:todist',
     'createVersion'
   ];
 
@@ -610,7 +610,7 @@ gulp.task('default', () => {
     { 'optimizeImages': 'Optimize images (gif, jpeg, svg, png).' },
     { 'fileinclude': 'Compile htmls with added partials like header.html, footer.html etc.' },
     { 'copy:images': 'Copy images to dist folder.' },
-    { 'copy:givenpaths': 'Copy paths to dist folder.' }
+    { 'copy:todist': 'Copy paths to dist folder with same path.' }
   );
 
   console.log(table.toString());
@@ -649,6 +649,7 @@ gulp.task('watch', () => {
   gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
   gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
   gulp.watch(APP.paths.SPRITES_SRC, ['sprites']);
+  gulp.watch(APP.paths.COPY_SRC, ['copy:todist']);
 });
 
 
