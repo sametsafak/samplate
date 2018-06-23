@@ -9,5 +9,8 @@
     @include make-margins-and-paddings(md, 10px, 12);
 }
 @include media-breakpoint-up(lg) {
-    @include make-margins-and-paddings(lm, 10px, 12);
+    @include make-margins-and-paddings(lg, 10px, 12);
+}
+@include media-breakpoint-up(xl) {
+    @include make-margins-and-paddings(xl, 10px, 12);
 }
