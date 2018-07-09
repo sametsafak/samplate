@@ -42,13 +42,15 @@ Key  | Info |  Description
 ----- | ------------------  |  -------
 paths | Type: `Object` |  Set files' paths
 paths.<br>SCRIPTS_SRC | Type: ` Glob` <br> Example: ` './src/*.js' ` |   Script files' paths (You can use arrays too and set sort of files with write them in sequence like **['./src/first.js', './src/second.js']**)
-paths.<br>STYLES_SRC | Type: `Glob`  |   Sass files' paths
+paths.<br>SCSS_SRC | Type: `Glob`  |   Sass files' paths, If you want to add css file, please use CSS_SRC path. More info: https://github.com/sass/node-sass/issues/2362
+paths.<br>CSS_SRC | Type: `Glob`  |   Css files' paths
 paths.<br>IMAGES_SRC | Type: `Glob` |   Image files' paths
 paths.<br>HTMLS_SRC | Type: `Glob`  |   Main html files' paths (Without partials like header.html etc)
 paths.<br>HTMLS_ALL_SRC | Type: `Glob`  |   Gives all html files' paths to gulp for watch task
 paths.<br>DIST_PATH | Type: `Glob`  |   Files processed and exported into this folder
 paths.<br>SCRIPTS_DIST | Type: `Glob` |   Script files processed and exported into this folder
-paths.<br>STYLES_DIST | Type: `Glob`  |   Sass files processed and exported into this folder
+paths.<br>SCSS_DIST | Type: `Glob`  |   Sass files processed and exported into this folder
+paths.<br>CSS_DIST | Type: `Glob`  |   CSS files processed and exported into this folder
 paths.<br>IMAGES_DIST | Type: `Glob`  |   Image files processed and exported into this folder
 paths.<br>HTMLS_DIST | Type: `Glob`  |   Html files processed and exported into this folder
 fileIncludeActive  | Type: `Boolean` <br>Default: `true`  |   Html file include enabled or disabled
@@ -76,7 +78,8 @@ watch/export.<br>refreshPageAfter.**image** | Type: `Boolean` <br>Default for wa
    paths: {
     // Scripts paths
     SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
-    STYLES_SRC: ['./src/assets/sass/**/*.scss'],
+    SCSS_SRC: ['./src/assets/sass/**/*.scss'],
+    CSS_SRC: ['./src/assets/css/**/*.css'],
     IMAGES_SRC: ['./src/assets/img/**/*.*'],
 
     // Html paths
@@ -86,7 +89,8 @@ watch/export.<br>refreshPageAfter.**image** | Type: `Boolean` <br>Default for wa
     // Dist paths
     DIST_PATH: './dist/',
     SCRIPTS_DIST: './dist/assets/js',
-    STYLES_DIST: './dist/assets/css',
+    SCSS_DIST: './dist/assets/css',
+    CSS_DIST: './dist/assets/css',
     IMAGES_DIST: './dist/assets/img',
     HTMLS_DIST: './dist/'
   },
