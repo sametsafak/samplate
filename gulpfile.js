@@ -88,7 +88,8 @@ let APP = (function () {
         // Dist paths
         DIST_PATH: './dist/',
         SCRIPTS_DIST: './dist/assets/js',
-        STYLES_DIST: './dist/assets/css',
+        SCSS_DIST: './dist/assets/css',
+        CSS_DIST: './dist/assets/css',
         IMAGES_DIST: './dist/assets/img',
         SPRITES_DIST: 'dist/assets/sprite',
         HTMLS_DIST: './dist/',
@@ -319,7 +320,7 @@ gulp.task('styles:scss', function (done) {
     .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
     .pipe(sourcemaps.write('.'))
     .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.style, connect.reload()))
-    .pipe(gulp.dest(APP.paths.STYLES_DIST));
+    .pipe(gulp.dest(APP.paths.SCSS_DIST));
 
   stream.on('end', function () {
     APP.streamEndHandler(self, 'styles:sass task completed!', done);

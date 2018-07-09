@@ -11,7 +11,8 @@ module.exports = {
     SCSS_SRC: ['src/assets/sass/**/*.scss'],
     CSS_SRC: [
       'src/assets/css/test2.css',
-      'src/assets/css/**/*.css'
+      'src/assets/css/test1.css'
+      // 'src/assets/css/**/*.css'
     ],
 
     // Html paths
@@ -21,7 +22,7 @@ module.exports = {
     // Dist paths
     DIST_PATH: 'dist/',
     SCRIPTS_DIST: 'dist/assets/js',
-    STYLES_DIST: 'dist/assets/css',
+    SCSS_DIST: 'dist/assets/css',
     CSS_DIST: 'dist/assets/css',
     IMAGES_DIST: 'dist/assets/img',
     SPRITES_DIST: 'dist/assets/sprite',
