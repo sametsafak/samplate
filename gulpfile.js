@@ -76,9 +76,10 @@ let APP = (function () {
         COPY_SRC: [],
         // Scripts paths
         SCRIPTS_SRC: ['./src/assets/js/**/*.js'],
-        STYLES_SRC: ['./src/assets/sass/**/*.scss'],
         IMAGES_SRC: ['./src/assets/img/**/*.*'],
         SPRITES_SRC: ['src/assets/sprite/**/*.*'],
+        SCSS_SRC: ['./src/assets/sass/**/*.scss'],
+        CSS_SRC: ['./src/assets/css/**/*.css'],
 
         // Html paths
         HTMLS_SRC: ['./src/*.html'], // Gives main htmls (without partials)
@@ -277,13 +278,38 @@ gulp.task('sprites', function (done) {
   });
 });
 
+// Styles For CSS
+gulp.task('styles:css', function (done) {
+
+  let self = this;
+
+  self.errorHappened = false;
+  let stream = gulp.src(APP.paths.CSS_SRC)
+    .pipe(plumber(function (err) {
+      APP.onError(err, this, self);
+    }))
+    .pipe(sourcemaps.init())
+    // .pipe(autoprefixer()) // It is commented because of this issue https://github.com/gulp-sourcemaps/gulp-sourcemaps/issues/60
+    .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
+    .pipe(concat('style.css',
+      { newLine: '\n /* ' + '---' + ' */\n' }
+    ))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.style, connect.reload()))
+    .pipe(gulp.dest(APP.paths.CSS_DIST));
+
+  stream.on('end', function () {
+    APP.streamEndHandler(self, 'styles:css task completed!', done);
+  });
+});
+
 // Styles For SCSS
 gulp.task('styles:scss', function (done) {
 
   let self = this;
 
   self.errorHappened = false;
-  let stream = gulp.src(APP.paths.STYLES_SRC)
+  let stream = gulp.src(APP.paths.SCSS_SRC)
     .pipe(plumber(function (err) {
       APP.onError(err, this, self);
     }))
@@ -543,6 +569,7 @@ gulp.task('createVersion', function (cb) {
 gulp.task('allTasks', (cb) => {
 
   let tasksArray = [
+    'styles:css',
     'styles:scss',
     'eslint',
     'scripts:bundle',
@@ -645,7 +672,8 @@ gulp.task('watch', () => {
   gulpSequence('allTasks', watchTasks, afterWatchStarted);
 
   gulp.watch(APP.paths.SCRIPTS_SRC, ['scripts:bundle', 'eslint']);
-  gulp.watch(APP.paths.STYLES_SRC, ['styles:scss']);
+  gulp.watch(APP.paths.SCSS_SRC, ['styles:scss']);
+  gulp.watch(APP.paths.CSS_SRC, ['styles:css']);
   gulp.watch(APP.paths.IMAGES_SRC, ['copy:images']);
   gulp.watch(APP.paths.HTMLS_ALL_SRC, ['fileinclude:html']);
   gulp.watch(APP.paths.SPRITES_SRC, ['sprites']);

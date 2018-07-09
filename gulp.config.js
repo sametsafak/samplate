@@ -6,9 +6,13 @@ module.exports = {
     COPY_SRC: ['src/copyme/**/*'],
     // Scripts paths
     SCRIPTS_SRC: ['src/assets/js/**/*.js'],
-    STYLES_SRC: ['src/assets/sass/**/*.scss'],
     IMAGES_SRC: ['src/assets/img/**/*.*'],
     SPRITES_SRC: ['src/assets/sprite/**/*.*'],
+    SCSS_SRC: ['src/assets/sass/**/*.scss'],
+    CSS_SRC: [
+      'src/assets/css/test2.css',
+      'src/assets/css/**/*.css'
+    ],
 
     // Html paths
     HTMLS_SRC: ['src/*.html'], // Main html files' sources (Without partials like header.html etc)
@@ -18,6 +22,7 @@ module.exports = {
     DIST_PATH: 'dist/',
     SCRIPTS_DIST: 'dist/assets/js',
     STYLES_DIST: 'dist/assets/css',
+    CSS_DIST: 'dist/assets/css',
     IMAGES_DIST: 'dist/assets/img',
     SPRITES_DIST: 'dist/assets/sprite',
     HTMLS_DIST: 'dist/',
@@ -28,7 +33,7 @@ module.exports = {
     a: {
       babel: true,
       lint: true,
-      files: ['src/js/assets/a/a2.js', 'src/js/assets/a/a3.js', 'src/assets/js/a/**/*.js']
+      files: ['src/js/assets/a/a2.js', 'src/assets/js/a/**/*.js']
     },
     b: {
       babel: false,
@@ -56,7 +61,7 @@ module.exports = {
   watch: {
     serve: true,
     uglifyScripts: false,
-    minifyCss: false,
+    minifyCss: true,
     optimizeImages: false,
     refreshPageAfter: {
       fileInclude: true,

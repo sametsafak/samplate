@@ -1,3 +1,5 @@
+// css imports must be written in gulp.config.js file's CSS_SRC array https://github.com/sass/node-sass/issues/2362
+
 // @import "../lib/bootstrap-3.3.7/stylesheets/_bootstrap";
 // @import "../lib/bootstrap-4.0.0/scss/bootstrap";
 @import "_bootstrap-overrides";
@@ -10,7 +12,6 @@
 @import "_layout";
 @import "_buttons";
 @import "_typo";
-@import "_ui-icons";
 @import "_common";
 
 .container {
