@@ -144,6 +144,7 @@ Write to terminal:
 Command  | Description
 -------- | -----------
 watch | Start watch mode.
+styles:css | Compile css files. Create sourcemaps, autoprefixes, and minifiy them.
 styles:scss | Compile css files from sass files. Create sourcemaps, autoprefixes, and minifiy them.
 scripts:bundle | Bundle script files. Babel is included (without import/export using) so you can write es6 codes. They will be transpiled via Babel to es5! You can enable or disable babel for each bundle inside of _gulp.config.js_ file. It creates sourcemaps also.
 eslint | Lints the scripts. You can enable or disable if for each bundle _gulp.config.js_ file.
