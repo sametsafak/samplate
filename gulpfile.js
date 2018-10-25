@@ -284,7 +284,21 @@ gulp.task('styles:css', function (done) {
 
   let self = this;
 
+  let missingFilesError = true;
+
+  this.missingFiles = [];
   self.errorHappened = false;
+
+
+  filesExist(APP.paths.CSS_SRC, {
+    throwOnMissing: false,
+    onMissing: function (file) {
+      self.missingFilesError = true;
+      self.missingFiles.push(file);
+      // console.log('Warning! CSS file is missing: ' + file);
+    }
+  });
+
   let stream = gulp.src(APP.paths.CSS_SRC)
     .pipe(plumber(function (err) {
       APP.onError(err, this, self);
@@ -299,9 +313,16 @@ gulp.task('styles:css', function (done) {
     .pipe(gulpif(APP.settings[APP.currentMode].refreshPageAfter.style, connect.reload()))
     .pipe(gulp.dest(APP.paths.CSS_DIST));
 
-  stream.on('end', function () {
+  // stream.on('end', function () {
+  //   APP.streamEndHandler(self, 'styles:css task completed!', done);
+  // });
+
+  if (self.missingFilesError) {
+    self.missingFilesError = false;
+    APP.onError({ message: 'File(s) not found: ' + self.missingFiles }, this, self);
+  } else {
     APP.streamEndHandler(self, 'styles:css task completed!', done);
-  });
+  }
 });
 
 // Styles For SCSS
