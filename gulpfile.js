@@ -31,8 +31,8 @@ let concat = require('gulp-concat'),
   mkdirp = require('mkdirp'),
   buffer = require('vinyl-buffer'),
   merge = require('merge-stream'),
-  filesExist = require('files-exist');
-
+  filesExist = require('files-exist'),
+  wait = require('gulp-wait');
 
 let errorAtFirstStart = false; // this variable is using for to decide watch and export tasks notification will show warning or successful
 
@@ -337,6 +337,7 @@ gulp.task('styles:scss', function (done) {
       APP.onError(err, this, self);
     }))
     .pipe(sourcemaps.init())
+    .pipe(wait(200))
     .pipe(sass())
     // .pipe(autoprefixer()) // It is commented because of this issue https://github.com/gulp-sourcemaps/gulp-sourcemaps/issues/60
     .pipe(gulpif(APP.settings[APP.currentMode].minifyCss, cleanCSS()))
