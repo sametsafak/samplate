@@ -1,3 +1,17 @@
 {
-  "doctype-first": false
+  "tagname-lowercase": true,
+  "attr-lowercase": true,
+  "attr-value-double-quotes": true,
+  "tag-pair": true,
+  "spec-char-escape": true,
+  "id-unique": true,
+  "src-not-empty": true,
+  "attr-no-duplication": true,
+  "title-require": true,
+  "attr-value-not-empty": true,
+  "tag-self-close": false,
+  "alt-require": true,
+  "doctype-html5": true,
+  "id-class-value": "dash",
+  "id-class-ad-disabled": true
 }
