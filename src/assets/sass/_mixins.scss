@@ -1,4 +1,5 @@
-@mixin make-margins-and-paddings($screen-size, $size, $loop-count) { // xs, 10px, 12: lm-xs-t1
+@mixin make-margins-and-paddings($screen-size, $size, $loop-count) {
+    // xs, 10px, 12: lm-xs-t1
 
     $types: margin padding;
 
@@ -6,14 +7,22 @@
 
         $t: str-slice($type, 1, 1); // $t is minified of '$type', m for minified 'margin' word. Same as paddings...
 
-        $directions: top right bottom left;
+        $directions: top right bottom left all;
 
         @each $direction in $directions {
             $d: str-slice($direction, 1, 1); // $d is minified of '$directions',t for minified 'top' word. Same as other directions...
 
             @for $i from 0 through $loop-count {
-                .l#{$t}-#{$screen-size}-#{$d}#{$i}{  // margin-xs-top-10 = margin-top, xs and above sizes, 10px
-                    #{$type}-#{$direction}: ($size * $i) !important;
+                .l#{$t}-#{$screen-size}-#{$d}#{$i} {
+                    // margin-xs-top-10 = margin-top, xs and above sizes, 10px
+
+                    @if $direction==all {
+                        #{$type}: ($size * $i) !important;
+                    }
+
+                    @else {
+                        #{$type}-#{$direction}: ($size * $i) !important;
+                    }
                 }
             }
         }
