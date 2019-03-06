@@ -1,7 +1,6 @@
 # samplate
 Simple but powerful frontend boilerplate.
 
-## Tell me more!
 This boilerplate can be [configured](#how-can-i-configure-it) via _gulp.config.js_ file.
 
 You can see the process of tasks' via **native os notifications!**
